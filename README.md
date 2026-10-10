@@ -1,85 +1,49 @@
 # Cribl Decision 1.0 Plays Doom
 
-Doom played by [`cribl-ai/cribl-decision-1.0`](https://huggingface.co/cribl-ai/cribl-decision-1.0),
-running locally, without ever seeing the screen. Structured game state goes in.
-One forward pass scores the three legal buttons through the model's own LM
-head. The highest-probability button is pressed. No text is generated or parsed.
+I ran [Cribl's open decision model](https://huggingface.co/cribl-ai/cribl-decision-1.0) locally on a Mac mini and let it play Doom. It never sees the screen. It reads the game state as JSON and picks one of three buttons.
 
-This repository extends [tirukovelamanoj/jev-plays-doom](https://github.com/tirukovelamanoj/jev-plays-doom),
-which did the same with TypeSafe's hosted Jev model. The ViZDoom integration,
-the `defend_the_center` scenario, the three buttons and the original Jev brain
-are kept. The original README and Jev footage are in [`docs/jev/`](docs/jev/).
+![Cribl Decision 1.0 playing defend_the_center. The bars show the probability the model gave each button.](docs/cribl-doom.gif)
 
-![Cribl Decision 1.0 playing defend_the_center](docs/cribl-doom.gif)
+<sub>Watch one minute of play in [`docs/cribl-doom.mp4`](docs/cribl-doom.mp4), where the game waits for each decision, or thirty seconds of live play at full game speed in [`docs/cribl-doom-live.mp4`](docs/cribl-doom-live.mp4). The bars show the probability the model gave each button, read from its output.</sub>
 
-<sub>Full minute, lock-step: [`docs/cribl-doom.mp4`](docs/cribl-doom.mp4).
-Real-time play at 35 tics/s: [`docs/cribl-doom-live.mp4`](docs/cribl-doom-live.mp4).
-Every label on screen is read from the model's returned probabilities.</sub>
+Model: `cribl-ai/cribl-decision-1.0` on `Qwen/Qwen3.5-4B-Base`. Hardware: Mac mini, Apple M4 Pro, 24 GB. Zero-shot, no fine-tuning.
 
-## Results in one table
+## Short answer
 
-`defend_the_center`, 20 episodes, episode *i* seeded `1234 + i`, so every brain
-faces the same starting states. One decision every 4 tics unless stated. Full
-tables, all experiments and the exact configuration of every run are in
-[`results/REPORT.md`](results/REPORT.md), generated from the JSON in `results/benchmarks/`.
+Yes, it can play. With the game state laid out around the nearest monster, the model averaged 7.50 kills per episode over 20 episodes. A hand-coded aiming rule averaged 7.55 on the same 20 episodes, and random button presses averaged 1.45.
 
-| brain | mode | kills (mean ± sd) | reward | hit rate | survival | decisions | latency p50 / p95 | fallbacks |
-|---|---|---|---|---|---|---|---|---|
-| Random | lock-step | 1.45 ± 0.94 | 0.45 | 0.09 | 9.8 s | 1721 | — | 0 |
-| Hand-coded heuristic (±8° rule) | lock-step | 7.55 ± 2.31 | 6.55 | 0.56 | 14.4 s | 2537 | — | 0 |
-| Cribl Decision 1.0, original Jev state | lock-step | 4.15 ± 1.60 | 3.15 | 0.17 | 13.1 s | 2306 | 177 / 205 ms | 0 |
-| Cribl, rich state | lock-step | 5.15 ± 1.23 | 4.15 | 0.22 | 13.6 s | 2383 | 181 / 253 ms | 0 |
-| **Cribl, compact state** | lock-step | 7.50 ± 1.10 | 6.50 | 0.32 | 14.9 s | 2618 | 174 / 197 ms | 0 |
-| Cribl, compact state, 8 tics | lock-step | 6.25 ± 1.37 | 5.25 | 0.30 | 14.0 s | 1233 | 174 / 182 ms | 0 |
-| Hand-coded heuristic | **live** | 7.75 ± 1.89 | 6.75 | 0.66 | 14.1 s | 4940 | — | 0 |
-| Cribl, compact state, 4 tics | **live** | 0.75 ± 0.55 | -0.25 | 0.88 | 8.8 s | 786 | 174 / 190 ms | 0 |
-| Cribl, compact state, 8 tics | **live** | 4.85 ± 1.63 | 3.85 | 0.27 | 13.7 s | 1243 | 174 / 175 ms | 0 |
+Each decision takes about 175 ms on the Mac mini. That is fast enough to play live at one decision every 8 game tics, which is 4.4 decisions per second. Live play costs some score, because the model acts on a state that is about 7 tics old.
 
-Jev was not run because no `TYPESAFE_API_KEY` was available. The brain is
-still there and runs with `--brain jev` once a key is set.
+![Average kills per episode for each configuration, 20 episodes per row on the same seeds](docs/kills-chart.png)
 
-**Answer to the question in the title: yes, with caveats.**
+## What I found
 
-* **It plays as well as the hand-coded heuristic once the state is shaped for it.**
-  Given the nearest monster as its own field (`--state compact`), Cribl Decision 1.0
-  averages the same kills as the hand-coded heuristic on the same 20 seeds.
-  Given the original Jev agent's state (a list of up to six monsters), it scores
-  about half that.
-* **It can play in real time at 8 tics per decision on an M4 Pro, at a cost.
-  At 4 tics it cannot.**
-  A decision takes about 175 ms (MLX, bfloat16, prefix cached). One decision
-  every 4 tics allows only 114 ms, and in live play the score collapses to 0.75
-  kills. At 8 tics (229 ms budget) it scores 4.85 kills live. The same setting in
-  lock-step scores 6.25, so acting on state that is about 7 tics old costs about
-  1.4 kills. The heuristic scores the same live as in lock-step.
-* **It hits less often than the heuristic but kills as many.**
-  With the compact state it fires more freely: 32% of its shots hit, against 56%
-  for the heuristic. It still kills as many monsters and survives slightly longer.
-* **It is zero-shot and very sensitive to wording and candidate order.**
-  Only the explicit ±8° rule wording produces sensible play. "Intent" and
-  "goal" wordings never fire, and "minimal" wording always fires.
-  Reordering the same three candidates changes 9–25% of decisions.
-* **Its confidence is not a reliable signal of a correct decision.**
-  Its most confident picks are mostly ATTACK, and they agree with the firing rule
-  less often than its middling picks. Even so, handing decisions below 0.4
-  confidence to the heuristic raised kills from 4.15 to 4.90.
-  That run is not pure model play: it is listed with 462 counted fallbacks.
+- **The layout of the state decides the score.** The original Jev demo sends a list of up to six monsters. With that list, Cribl scored 4.15 kills and fired at monsters that were far off centre. When I gave the nearest monster its own field, it scored 7.50. Both states hold the same facts. The hand-coded rule scores 7.55 on either one.
+- **It needs about 175 ms per decision.** At one decision every 4 tics the budget is 114 ms, and live play fell to 0.75 kills. At one decision every 8 tics it scored 4.85 kills live and 6.25 in lock-step.
+- **Wording and order change its answers a lot.** Only the wording that spells out the 8 degree firing rule plays well. The wording that describes what each button does never fired, and the minimal wording always fired. Reordering the same three buttons changed between 9 and 25 percent of decisions on fixed game states.
+- **Its confidence is not a good guide to correctness here.** Its most confident picks agreed with the firing rule less often than its middling ones. Handing decisions below 0.4 confidence to the hand-coded rule still raised kills from 4.15 to 4.90.
+
+## Results
+
+The scenario is ViZDoom's `defend_the_center`. The player stands in the middle of a round room with a pistol and 26 bullets and cannot move. Every row is 20 episodes on seeds 1234 to 1253, the same for every row. Lock-step means the game waits for each decision. Live means the game runs at 35 tics per second while the model thinks.
+
+| Configuration | Mode | Kills (mean, sd) | Hit rate | Survival | Decisions | Latency p50, p95 | Fallbacks |
+|---|---|---|---|---|---|---|---|
+| Random buttons | lock-step | 1.45, 0.94 | 9% | 9.8 s | 1721 | <1 ms | 0 |
+| Hand-coded aiming rule | lock-step | 7.55, 2.31 | 56% | 14.4 s | 2537 | <1 ms | 0 |
+| Cribl, original Jev state | lock-step | 4.15, 1.60 | 17% | 13.1 s | 2306 | 177, 205 ms | 0 |
+| Cribl, original state plus armour and recent actions | lock-step | 5.15, 1.23 | 22% | 13.6 s | 2383 | 181, 253 ms | 0 |
+| **Cribl, nearest monster as its own field** | lock-step | **7.50, 1.10** | 32% | 14.9 s | 2618 | 174, 197 ms | 0 |
+| Cribl, nearest monster, 8 tics per decision | lock-step | 6.25, 1.37 | 30% | 14.0 s | 1233 | 174, 182 ms | 0 |
+| Hand-coded aiming rule | live | 7.75, 1.89 | 66% | 14.1 s | 4940 | <1 ms | 0 |
+| Cribl, nearest monster, 4 tics per decision | live | 0.75, 0.55 | 88% | 8.8 s | 786 | 174, 190 ms | 0 |
+| Cribl, nearest monster, 8 tics per decision | live | 4.85, 1.63 | 27% | 13.7 s | 1243 | 174, 175 ms | 0 |
+
+Kills come from the engine's kill counter. Hit rate is hits divided by shots fired. Survival is the time until death, and an episode ends at 60 seconds. A fallback is a decision the model did not make, and every row has zero fallbacks. The tables for every experiment, including prompt wording, candidate order, decision interval and confidence, are in [results/REPORT.md](results/REPORT.md).
 
 ## How it works
 
-```
- ViZDoom (headless)         doom_agent.py                cribl_decision.py / cribl_mlx.py
-┌──────────────────┐ objects, ┌───────────────┐  state  ┌──────────────────────────────────┐
-│ defend_the_      ├─ health ►│ describe()    ├────────►│ prompt: question + lettered      │
-│ center.wad       │   ammo   │  → bearings,  │         │ candidates + state + "Answer:"   │
-│                  │          │    distances  │         │ one forward pass                 │
-│                  │◄─────────┤ Decision      │◄────────┤ logits at the decision slot,     │
-└──────────────────┘ button × │ (action, p,   │ choice, │ rows " A" " B" " C" of lm_head,  │
-                     N tics   │  latency)     │ probs   │ softmax over the 3 candidates    │
-                              └───────────────┘         └──────────────────────────────────┘
-```
-
-The model receives JSON such as this (`--state compact`):
+ViZDoom reports the player's health, ammunition, position and the position of every monster. The agent turns the monster positions into a distance and a bearing, where 0 degrees is straight ahead. The state goes to the model as JSON, e.g.:
 
 ```json
 {"health": 100, "ammo": 21, "armor": 0,
@@ -88,240 +52,47 @@ The model receives JSON such as this (`--state compact`):
  "note": "bearing 0 = dead ahead. POSITIVE bearing means the monster is to your LEFT (turn left to face it); NEGATIVE means to your RIGHT."}
 ```
 
-`--state jev` (the default) is exactly the original project's state: health,
-ammo, facing, and up to six monsters with kind, distance and bearing, nearest
-first. Both are computed from the same ViZDoom object positions the original
-Jev agent used. Neither gives the model anything the Jev agent did not have.
+The prompt lists the three buttons as lettered candidates A, B and C, then the state, and ends with "Answer:". The model runs one forward pass. The agent reads the scores for the letter tokens at the last position, turns them into probabilities, and presses the button with the highest one. The model generates no text. The [technical notes](docs/TECHNICAL.md) give the full prompt and the tests behind each claim.
 
-It is asked one typed `choice` question:
+## Notes for the Cribl team
 
-```
-Question (choice): You are fighting for your life in Doom, surrounded by monsters. Pick the single best button to press right now.
+- The model card mentions an accompanying candidate scoring implementation, but I could not find it on Hugging Face or GitHub. I built a compatible readout instead. To choose the prompt layout, I tested seven layouts on 27 questions with known answers. In the plain layout ending in "Answer:", the adapter puts 95 to 99 percent of the next token probability on the candidate letters. The base model alone puts 25 to 57 percent there. In the chat template the adapter puts only 39 to 54 percent there. The exact training format is still a guess, and the official readout could score higher.
+- The loading snippet on the model card uses `AutoModelForCausalLM`. With transformers 5.19, that class names its modules differently from the adapter, so PEFT prints a warning and runs the base model without the adapter. Loading `Qwen3_5ForConditionalGeneration` fixes it. My code checks that all 304 adapter tensors are applied.
+- On a Mac, MLX runs the model about 2.3 times faster than PyTorch on MPS. Caching the fixed part of the prompt more than halves the time again. The two paths agree to within 0.02 in probability.
 
-Candidates:
-A. ATTACK: Fire. Correct whenever the nearest monster's bearing is between -8 and +8, ...
-B. TURN_LEFT: Rotate left. Correct only when the nearest monster's bearing is GREATER than +8. ...
-C. TURN_RIGHT: Rotate right. Correct only when the nearest monster's bearing is LESS than -8. ...
+## Limits
 
-Answer with the letter of the single best candidate.
+- The test uses one small scenario with three buttons and no movement.
+- Twenty episodes per row is a small sample. Differences smaller than about one kill are within the noise.
+- I chose the state layouts and wordings while looking at these benchmark results, so the best row is a favourable setup.
+- TypeSafe's Jev was not run, because I had no API key. The code supports it with `--brain jev`.
 
-State:
-{...}
-Answer:
-```
+## Try it
 
-and returns:
-
-```python
-Decision(action="ATTACK",
-         probabilities={"ATTACK": 0.91, "TURN_LEFT": 0.06, "TURN_RIGHT": 0.03},
-         confidence=0.87,      # (max p − 1/n) / (1 − 1/n), the system-one formula
-         p_selected=0.91,
-         model_ms=171.4,
-         fallback=None)        # or "low_confidence" / "error:..." — never silent
-```
-
-## The structured readout, and what is verified
-
-The model card describes the readout as *hidden state at the decision slot →
-native Qwen `lm_head` candidate logits → normalisation over the supplied
-candidates*. It refers to "the accompanying candidate-scoring implementation",
-but that has not been published: there is none in the Hugging Face repository
-and none on Cribl's GitHub as of 2026-10-10. So this repository implements a
-compatible readout and states clearly which parts are verified and which are
-inferred.
-
-**Verified, with tests (`tests/`):**
-
-| claim | how |
-|---|---|
-| Base model is `Qwen/Qwen3.5-4B-Base` at the pinned revision `1001bb4d…` | `cribl_decision.BASE_REVISION`; the adapter is pinned too (`75cb0dd9…`) |
-| **Every one of the 304 adapter tensors is applied** | `_verify_adapter()` compares the live model with `adapter_model.safetensors` and refuses to run otherwise. See the pitfall below. |
-| Probabilities come from the native `lm_head` rows at the decision slot | `test_readout_is_lm_head_rows_at_decision_slot`: `candidate_weights @ hidden_state` computed by hand equals the readout |
-| Softmax over the supplied candidates only; never generated text | no `generate()` anywhere; one `forward()` per question |
-| Several questions in one padded forward pass equal the same questions asked singly | `test_batched_questions_match_single` |
-| MLX (merged LoRA) agrees with PyTorch + PEFT (unmerged LoRA) | `test_mlx_matches_torch_peft`: max \|Δp\| 0.020 over 8 Doom states, same decisions |
-| The MLX prefix cache does not change answers or drift | `test_mlx_prefix_cache_is_stable_and_matches_uncached` |
-| Deterministic | `test_deterministic` |
-
-**Inferred, not verified against Cribl's code:** the prompt text, the
-position of the decision slot, and which vocabulary rows score each
-candidate. `probe_formats.py` tested seven layouts on 27 questions with known
-answers (customer routing, telemetry event types, log severity, sentiment,
-arithmetic, knowledge, tool choice, threshold rules, Doom), each asked in two
-candidate orders, with the adapter on and off. The decisive signal is
-probability mass at the slot:
-
-| layout | adapter: slot mass on the candidate tokens | bare base | adapter acc | base acc |
-|---|---|---|---|---|
-| plain text, letters, question first, ends `Answer:` (**used**) | **0.95** | 0.35 | 0.85 | 0.72 |
-| plain text, letters, state first | **0.99** | 0.57 | 0.89 | 0.85 |
-| plain text, candidate names | **0.95** | 0.25 | 1.00* | 0.85* |
-| Qwen chat template, letters | 0.39 | 0.36 | 0.87 | 0.85 |
-| Qwen chat template, question first | 0.54 | 0.39 | 0.83 | 0.76 |
-
-<sub>*Name scoring cannot run the Doom question because `TURN_LEFT` and
-`TURN_RIGHT` share their first token, so those formats were scored on fewer items.
-The code refuses such candidate sets rather than guessing.</sub>
-
-The adapter clearly learned to put a candidate label at a plain-text
-`Answer:` slot (95–99% of the full-vocabulary probability, against 25–57% for
-the base), and not at a chat-template slot. Of the plain layouts,
-question-first shows the largest accuracy gain from the adapter (+0.13). It is
-also the only one whose static part can be cached, and it played Doom far
-better (4.15 kills against 0.55 for state-first, `results/REPORT.md`). The exact
-training prompt is still unknown, so absolute scores may be lower than
-Cribl's own readout would achieve.
-
-**Pitfall worth knowing:** the model card's own snippet loads the base with
-`AutoModelForCausalLM`. With transformers 5.x this resolves to the text-only
-`Qwen3_5ForCausalLM`, whose modules are named `model.layers.*`. The adapter was
-saved against `Qwen3_5ForConditionalGeneration` (`model.language_model.layers.*`).
-PEFT only *warns* about the mismatch and then runs the bare base model. This
-repository loads `Qwen3_5ForConditionalGeneration` and checks every tensor.
-
-## Install
-
-Tested on an Apple M4 Pro (24 GB), macOS 26.7, Python 3.12.
+You need Python 3.11 to 3.13. The first run downloads the base model (9.3 GB) and the adapter (58 MB) from Hugging Face.
 
 ```bash
 uv venv -p 3.12 .venv
-uv pip install -p .venv/bin/python -e ".[cribl,mlx,record,test]"   # drop mlx off Apple Silicon
+uv pip install -p .venv/bin/python -e ".[cribl,mlx,record,test]"   # leave out mlx if you are not on Apple Silicon
 .venv/bin/python selfcheck.py
-```
 
-The first `--brain cribl` run downloads the pinned base model (9.3 GB) and the
-adapter (58 MB) from Hugging Face. On Apple Silicon with `mlx` installed, the
-LoRA is merged once into the base in float32, cast back to bfloat16, and cached
-in `~/.cache/cribl-doom/` (another 9.3 GB). `--backend torch` uses the
-unmerged PEFT reference path: CUDA, then MPS, then CPU.
-
-| backend | device | precision | decision latency (Doom, jev state) |
-|---|---|---|---|
-| `mlx` (default on Apple Silicon) | M4 Pro GPU | bfloat16 weights, LoRA merged in float32 | **~175 ms** with prefix cache, ~410 ms without |
-| `torch` | M4 Pro via MPS | bfloat16, LoRA unmerged | ~940–1050 ms (transformers' reference DeltaNet kernels on MPS) |
-| `torch` | CUDA | bfloat16 | not measured here; install `flash-linear-attention` and `causal-conv1d` for the fast kernels |
-| `torch` | CPU | `--dtype float32` recommended | works; not measured here |
-
-## Commands
-
-```bash
-# play
-.venv/bin/python doom_agent.py --brain cribl --episodes 20 --seed 1234
-.venv/bin/python doom_agent.py --brain cribl --state compact --episodes 20 --seed 1234 --trace results/traces/mine.csv
+.venv/bin/python doom_agent.py --brain cribl --state compact --episodes 20 --seed 1234
 .venv/bin/python doom_agent.py --brain heuristic --episodes 20 --seed 1234
-.venv/bin/python doom_agent.py --brain random --episodes 20 --seed 1234
-.venv/bin/python doom_agent.py --brain jev --episodes 20 --seed 1234        # needs TYPESAFE_API_KEY and --extra jev
-.venv/bin/python doom_agent.py --brain cribl --state compact --live --tics 8  # real time
-
-# benchmark every brain and experiment, then the report
-.venv/bin/python benchmark.py --suite all --episodes 20 --seed 1234
-.venv/bin/python order_probe.py --trace results/traces/cribl.csv --n 150
-.venv/bin/python batch_latency.py --backend mlx; .venv/bin/python batch_latency.py --backend torch
-.venv/bin/python probe_formats.py
-.venv/bin/python report.py                     # → results/REPORT.md
-
-# watch / record
+.venv/bin/python doom_agent.py --brain cribl --state compact --live --tics 8      # real time
 .venv/bin/python record.py --brain cribl --state compact --seconds 60 --out docs/cribl-doom.mp4
-.venv/bin/python record.py --brain cribl --state compact --live --tics 8 --seconds 30 --out docs/cribl-doom-live.mp4
-.venv/bin/python doom_agent.py --brain cribl --state compact --window --episodes 1   # ViZDoom window
-.venv/bin/python play.py                       # play the same seeds yourself
-
-# tests
-.venv/bin/python -m pytest -q                          # fast, tokenizer only
-CRIBL_MODEL_TESTS=1 .venv/bin/python -m pytest -q      # + loads the model (both backends)
 ```
 
-| flag | default | |
-|---|---|---|
-| `--brain` | `heuristic` | `heuristic`, `random`, `jev`, `cribl` |
-| `--state` | `jev` | `jev` (original), `rich` (+ armour, in-view count, last 3 actions), `compact` (nearest monster as its own field) |
-| `--criteria` | `rule` | `rule`, `intent`, `minimal`, `goal` |
-| `--format` | `plain_letter_qfirst` | prompt layout, see `cribl_decision.FORMATS` |
-| `--order` | `ATTACK,TURN_LEFT,TURN_RIGHT` | candidate order shown to the model |
-| `--tics` | `4` | game tics each decision is held for |
-| `--live` | off | game runs at 35 tics/s of wall clock while the model thinks |
-| `--backend` | `auto` | `mlx` or `torch` |
-| `--device` / `--dtype` | `auto` / `bfloat16` | torch backend only |
-| `--conf-floor` | `0.0` | below it, substitute the heuristic (counted as `low_confidence` fallback) |
-| `--on-error` | `raise` | `raise`, or substitute `heuristic` / `noop` (counted as `error:` fallback) |
-| `--ask-danger` | off | also ask a `noul` "in danger?" question every decision |
-| `--seed` | `1234` | episode *i* uses `seed + i`; `-1` randomises |
-| `--trace` / `--json` | — | per-decision CSV / run summary |
+The [technical notes](docs/TECHNICAL.md) list every command, flag and backend, and explain how to rerun the full benchmark.
 
-## Measurements, and what they mean
+## More detail
 
-**Game time vs wall-clock time.** By default the loop is *lock-step*: ViZDoom
-waits for every decision, so kills and survival do not depend on how slow the
-model is. Wall-clock cost is measured separately and reported as latency,
-decisions per second and *game speed* (game seconds per wall second). `--live`
-removes the lock-step. The game advances at 35 tics/s of wall clock while a
-worker thread runs the model on the most recent state snapshot. The model can
-only ever see current or stale state, never future state, and the staleness of
-every decision is traced.
+- [docs/TECHNICAL.md](docs/TECHNICAL.md) covers the readout, what the tests verify, install options, commands, flags and file layout.
+- [results/REPORT.md](results/REPORT.md) has every experiment, generated by `report.py` from the benchmark files.
+- [results/traces/](results/traces/) holds a CSV row for every decision, with the state, the probabilities and the latency.
+- [docs/](docs/) has the recordings, plus a still image and a short clip for sharing, made by `tools/make_media.py`.
 
-**Latency** is the full decision: prompt building, tokenisation, forward pass
-and readout. Raw forward-pass time on MLX is about 86 ms for a 16-token
-input, rising by about 1.25 ms per token. A prompt of about 300 tokens therefore
-costs about 410 ms. Caching the static question-and-candidates prefix leaves only
-the state (about 100–150 tokens) per decision, which gives the ~175 ms.
+## Credits and license
 
-**Multi-token prediction** (mlx-lm PR 990) does not apply. It speeds up
-*generation* by drafting several tokens per forward pass. This readout
-generates nothing: one prefill and one read per decision. The MTP head is also
-not part of what the LoRA adapted.
+This project extends [tirukovelamanoj/jev-plays-doom](https://github.com/tirukovelamanoj/jev-plays-doom), which ran the same test with TypeSafe's hosted Jev model. Its ViZDoom setup, scenario and Jev brain are kept, and its original README and footage are in [docs/jev/](docs/jev/).
 
-**Batching** two or four questions into one padded forward pass is supported
-on the torch backend (and tested equal to asking them singly). On this machine
-it is *slower* than asking sequentially (1.79 s against 1.42 s for two questions on
-MPS), because prefill is compute-bound. MLX asks questions sequentially, at about
-168 ms each.
-
-## Files
-
-```
-doom_agent.py      state, brains (random, heuristic, Jev, Cribl), lock-step and live loops, CLI
-cribl_decision.py  typed questions, prompt formats, PyTorch + PEFT model and readout
-cribl_mlx.py       LoRA merge, MLX model, same readout, prefix cache
-benchmark.py       every brain and experiment on identical seeds → results/benchmarks, results/traces
-report.py          results/REPORT.md from those files
-probe_formats.py   which prompt layout the adapter responds to
-order_probe.py     candidate order and wording on constant recorded states
-batch_latency.py   cost of several questions per decision
-record.py          mp4 with decision overlay (lock-step or live)
-play.py            play the same seeds yourself
-selfcheck.py       install check without loading a model
-tests/             readout, action selection, adapter integrity, backend parity
-results/           REPORT.md, benchmark JSON, decision traces (CSV), probe outputs
-docs/              recordings; docs/jev/ holds the original project's README and footage
-```
-
-## Limitations
-
-* **The readout format is inferred.** It is not Cribl's published code, because
-  none exists yet. Results may change once the reference implementation is
-  released. Swap the layout in `cribl_decision.FORMATS`.
-* **There is one scenario.** `defend_the_center` has three buttons and no movement.
-  Nothing here says how the model handles navigation or richer action sets.
-* **Results are zero-shot.** There was no fine-tuning, and the prompt was not
-  tuned against the benchmark seeds, but the wording and state variants were
-  chosen with the benchmark in mind. Treat the best configuration as a
-  favourable one, not a typical one.
-* **Twenty episodes is a small sample.** Per-episode standard deviations are
-  1–2 kills, so differences under about 1 kill between configurations are noise.
-* **The MLX path changes rounding.** It runs merged weights
-  (bf16(W + BA) rather than bf16(W) + BA), so probabilities differ from the
-  PEFT path by up to about 0.02. Decisions agreed on every tested state that was
-  not a near tie.
-* **Latency depends on hardware.** All latencies are from one M4 Pro. A CUDA GPU
-  with the fused DeltaNet kernels should be much faster, but was not measured.
-* **The state comes from ViZDoom's object list, like the original project's.**
-  That list includes monsters outside the field of view, which the original Jev
-  agent was also given. `monsters_in_view` is computed from bearings and a 90°
-  field of view; it is not a line-of-sight test.
-
-## License
-
-MIT, as the original project. See [LICENSE](LICENSE). The Cribl adapter is
-Apache-2.0 and the Qwen base model has its own license; neither is
-redistributed here.
+MIT, as the original project. See [LICENSE](LICENSE). The Cribl adapter is Apache-2.0 and the Qwen base model has its own license. Neither is included here.
