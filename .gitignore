@@ -7,3 +7,4 @@ _vizdoom/
 *.egg-info/
 .env
 .DS_Store
+.pytest_cache/

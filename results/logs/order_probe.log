@@ -1,0 +1,13 @@
+150 states: ATTACK 50, TURN_LEFT 50, TURN_RIGHT 50
+order ATTACK,TURN_LEFT,TURN_RIGHT {'flip_rate': 0, 'mean_tv': 0.0, 'p_first_slot': 0.586, 'p_last_slot': 0.213, 'oracle_agree': 0.553, 'attack_rate': 0.693}
+order ATTACK,TURN_RIGHT,TURN_LEFT {'flip_rate': 0.113, 'mean_tv': 0.105, 'p_first_slot': 0.566, 'p_last_slot': 0.147, 'oracle_agree': 0.5, 'attack_rate': 0.66}
+order TURN_LEFT,ATTACK,TURN_RIGHT {'flip_rate': 0.087, 'mean_tv': 0.124, 'p_first_slot': 0.167, 'p_last_slot': 0.227, 'oracle_agree': 0.527, 'attack_rate': 0.74}
+order TURN_LEFT,TURN_RIGHT,ATTACK {'flip_rate': 0.193, 'mean_tv': 0.192, 'p_first_slot': 0.129, 'p_last_slot': 0.743, 'oracle_agree': 0.42, 'attack_rate': 0.873}
+order TURN_RIGHT,ATTACK,TURN_LEFT {'flip_rate': 0.253, 'mean_tv': 0.171, 'p_first_slot': 0.154, 'p_last_slot': 0.237, 'oracle_agree': 0.453, 'attack_rate': 0.773}
+order TURN_RIGHT,TURN_LEFT,ATTACK {'flip_rate': 0.2, 'mean_tv': 0.191, 'p_first_slot': 0.166, 'p_last_slot': 0.686, 'oracle_agree': 0.427, 'attack_rate': 0.833}
+wording rule {'agree_with_rule_wording': 1, 'oracle_agree': 0.553, 'attack_rate': 0.693, 'p_selected_mean': 0.726, 'confidence_mean': 0.589, 'oracle_agree_when_ATTACK': 0.88, 'oracle_agree_when_TURN_LEFT': 0.18, 'oracle_agree_when_TURN_RIGHT': 0.6}
+wording intent {'agree_with_rule_wording': 0.26, 'oracle_agree': 0.593, 'attack_rate': 0.007, 'p_selected_mean': 0.557, 'confidence_mean': 0.335, 'oracle_agree_when_ATTACK': 0, 'oracle_agree_when_TURN_LEFT': 0.98, 'oracle_agree_when_TURN_RIGHT': 0.8}
+wording minimal {'agree_with_rule_wording': 0.693, 'oracle_agree': 0.333, 'attack_rate': 1, 'p_selected_mean': 0.682, 'confidence_mean': 0.522, 'oracle_agree_when_ATTACK': 1, 'oracle_agree_when_TURN_LEFT': 0, 'oracle_agree_when_TURN_RIGHT': 0}
+wording goal {'agree_with_rule_wording': 0.08, 'oracle_agree': 0.333, 'attack_rate': 0, 'p_selected_mean': 0.744, 'confidence_mean': 0.615, 'oracle_agree_when_ATTACK': 0, 'oracle_agree_when_TURN_LEFT': 1, 'oracle_agree_when_TURN_RIGHT': 0}
+
+all 6 orderings agree on 64.7% of states · wrote results/order_probe.json

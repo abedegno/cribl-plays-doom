@@ -1,0 +1,3 @@
+{'backend': 'mlx-metal', 'questions': 1, 'mode': 'sequential, prefix cached', 'mean_ms': 168.40072066988796, 'p95_ms': 176.96524993516505}
+{'backend': 'mlx-metal', 'questions': 2, 'mode': 'sequential, prefix cached', 'mean_ms': 333.88393744826317, 'p95_ms': 350.4368329886347}
+{'backend': 'mlx-metal', 'questions': 4, 'mode': 'sequential, prefix cached', 'mean_ms': 667.6337510638405, 'p95_ms': 698.963791015558}

@@ -1,0 +1,60 @@
+{
+ "rows": [
+  {
+   "backend": "mlx-metal",
+   "questions": 1,
+   "mode": "sequential, prefix cached",
+   "mean_ms": 168.40072066988796,
+   "p95_ms": 176.96524993516505
+  },
+  {
+   "backend": "mlx-metal",
+   "questions": 2,
+   "mode": "sequential, prefix cached",
+   "mean_ms": 333.88393744826317,
+   "p95_ms": 350.4368329886347
+  },
+  {
+   "backend": "mlx-metal",
+   "questions": 4,
+   "mode": "sequential, prefix cached",
+   "mean_ms": 667.6337510638405,
+   "p95_ms": 698.963791015558
+  },
+  {
+   "backend": "mps",
+   "questions": 1,
+   "mode": "one pass",
+   "mean_ms": 940.1673260232201,
+   "p95_ms": 1005.8276250492781
+  },
+  {
+   "backend": "mps",
+   "questions": 2,
+   "mode": "one pass",
+   "mean_ms": 1791.3700937002432,
+   "p95_ms": 1934.3107090098783
+  },
+  {
+   "backend": "mps",
+   "questions": 2,
+   "mode": "sequential",
+   "mean_ms": 1416.8958457710687,
+   "p95_ms": 1521.1362920235842
+  },
+  {
+   "backend": "mps",
+   "questions": 4,
+   "mode": "one pass",
+   "mean_ms": 3788.256959398859,
+   "p95_ms": 4577.308707986958
+  },
+  {
+   "backend": "mps",
+   "questions": 4,
+   "mode": "sequential",
+   "mean_ms": 2665.9729687904473,
+   "p95_ms": 2935.2086670696735
+  }
+ ]
+}

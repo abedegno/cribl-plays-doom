@@ -1,0 +1,24 @@
+loaded cribl on mlx-metal in 3.6s
+[cribl_compact_tics8] {'state': 'compact', 'tics': 8}
+  episode  1 (seed 1234): 7 kills, reward 6, died at 13.9s, hits 7/21, 61 decisions, 171 ms/decision
+  episode  2 (seed 1235): 6 kills, reward 5, died at 11.6s, hits 6/18, 51 decisions, 170 ms/decision
+  episode  3 (seed 1236): 5 kills, reward 4, died at 11.4s, hits 5/18, 50 decisions, 175 ms/decision
+  episode  4 (seed 1237): 5 kills, reward 4, died at 13.1s, hits 5/20, 58 decisions, 180 ms/decision
+  episode  5 (seed 1238): 7 kills, reward 6, died at 14.2s, hits 7/25, 63 decisions, 180 ms/decision
+  episode  6 (seed 1239): 5 kills, reward 4, died at 13.7s, hits 5/21, 60 decisions, 178 ms/decision
+  episode  7 (seed 1240): 6 kills, reward 5, died at 11.7s, hits 6/18, 52 decisions, 176 ms/decision
+  episode  8 (seed 1241): 10 kills, reward 9, died at 23.8s, hits 10/26, 105 decisions, 176 ms/decision
+  episode  9 (seed 1242): 4 kills, reward 3, died at 13.7s, hits 4/18, 60 decisions, 174 ms/decision
+  episode 10 (seed 1243): 6 kills, reward 5, died at 11.9s, hits 6/21, 53 decisions, 173 ms/decision
+  episode 11 (seed 1244): 7 kills, reward 6, died at 14.9s, hits 7/25, 66 decisions, 175 ms/decision
+  episode 12 (seed 1245): 6 kills, reward 5, died at 12.9s, hits 6/16, 57 decisions, 173 ms/decision
+  episode 13 (seed 1246): 8 kills, reward 7, died at 15.0s, hits 8/23, 66 decisions, 180 ms/decision
+  episode 14 (seed 1247): 7 kills, reward 6, died at 14.3s, hits 7/16, 63 decisions, 171 ms/decision
+  episode 15 (seed 1248): 6 kills, reward 5, died at 14.1s, hits 6/18, 62 decisions, 172 ms/decision
+  episode 16 (seed 1249): 7 kills, reward 6, died at 14.2s, hits 7/25, 63 decisions, 171 ms/decision
+  episode 17 (seed 1250): 6 kills, reward 5, died at 13.1s, hits 6/19, 58 decisions, 173 ms/decision
+  episode 18 (seed 1251): 4 kills, reward 3, died at 12.2s, hits 4/16, 54 decisions, 171 ms/decision
+  episode 19 (seed 1252): 7 kills, reward 6, died at 15.1s, hits 7/26, 67 decisions, 173 ms/decision
+  episode 20 (seed 1253): 6 kills, reward 5, died at 14.6s, hits 6/26, 64 decisions, 172 ms/decision
+[cribl_compact_tics8] kills 6.25±1.37 reward 5.25 survival 14.0s acc 0.3 decisions 1233 fallbacks 0 lat p50 174.1ms p95 182.3ms
+

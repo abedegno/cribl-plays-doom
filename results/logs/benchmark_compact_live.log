@@ -1,0 +1,47 @@
+loaded cribl on mlx-metal in 3.2s
+[cribl_compact_live] {'state': 'compact', 'live': True}
+  episode  1 (seed 1234): 0 kills, reward -1, died at 8.9s, hits 0/0, 40 decisions, 174 ms/decision
+  episode  2 (seed 1235): 0 kills, reward -1, died at 8.9s, hits 0/0, 40 decisions, 174 ms/decision
+  episode  3 (seed 1236): 1 kills, reward 0, died at 8.7s, hits 1/1, 39 decisions, 174 ms/decision
+  episode  4 (seed 1237): 0 kills, reward -1, died at 9.1s, hits 0/0, 41 decisions, 173 ms/decision
+  episode  5 (seed 1238): 0 kills, reward -1, died at 9.0s, hits 0/0, 40 decisions, 174 ms/decision
+  episode  6 (seed 1239): 1 kills, reward 0, died at 6.3s, hits 1/1, 29 decisions, 174 ms/decision
+  episode  7 (seed 1240): 1 kills, reward 0, died at 10.3s, hits 1/1, 47 decisions, 173 ms/decision
+  episode  8 (seed 1241): 1 kills, reward 0, died at 11.0s, hits 1/1, 50 decisions, 173 ms/decision
+  episode  9 (seed 1242): 1 kills, reward 0, died at 9.3s, hits 1/1, 41 decisions, 174 ms/decision
+  episode 10 (seed 1243): 1 kills, reward 0, died at 7.0s, hits 1/1, 31 decisions, 174 ms/decision
+  episode 11 (seed 1244): 1 kills, reward 0, died at 9.7s, hits 1/1, 41 decisions, 189 ms/decision
+  episode 12 (seed 1245): 1 kills, reward 0, died at 10.0s, hits 1/3, 43 decisions, 190 ms/decision
+  episode 13 (seed 1246): 2 kills, reward 1, died at 10.7s, hits 2/2, 46 decisions, 186 ms/decision
+  episode 14 (seed 1247): 0 kills, reward -1, died at 6.6s, hits 0/0, 28 decisions, 186 ms/decision
+  episode 15 (seed 1248): 1 kills, reward 0, died at 8.1s, hits 1/1, 35 decisions, 178 ms/decision
+  episode 16 (seed 1249): 1 kills, reward 0, died at 10.3s, hits 1/1, 45 decisions, 175 ms/decision
+  episode 17 (seed 1250): 0 kills, reward -1, died at 6.6s, hits 0/0, 30 decisions, 173 ms/decision
+  episode 18 (seed 1251): 1 kills, reward 0, died at 9.0s, hits 1/1, 41 decisions, 174 ms/decision
+  episode 19 (seed 1252): 1 kills, reward 0, died at 9.5s, hits 1/1, 43 decisions, 174 ms/decision
+  episode 20 (seed 1253): 1 kills, reward 0, died at 7.9s, hits 1/1, 36 decisions, 173 ms/decision
+[cribl_compact_live] kills 0.75±0.55 reward -0.25 survival 8.8s acc 0.882 decisions 786 fallbacks 0 lat p50 173.9ms p95 189.9ms
+
+[cribl_compact_live_tics8] {'state': 'compact', 'live': True, 'tics': 8}
+  episode  1 (seed 1234): 7 kills, reward 6, died at 14.2s, hits 7/22, 65 decisions, 173 ms/decision
+  episode  2 (seed 1235): 5 kills, reward 4, died at 13.1s, hits 5/17, 60 decisions, 172 ms/decision
+  episode  3 (seed 1236): 5 kills, reward 4, died at 11.8s, hits 5/19, 54 decisions, 172 ms/decision
+  episode  4 (seed 1237): 5 kills, reward 4, died at 14.0s, hits 5/19, 63 decisions, 173 ms/decision
+  episode  5 (seed 1238): 5 kills, reward 4, died at 12.9s, hits 5/22, 59 decisions, 171 ms/decision
+  episode  6 (seed 1239): 4 kills, reward 3, died at 13.1s, hits 4/17, 60 decisions, 172 ms/decision
+  episode  7 (seed 1240): 4 kills, reward 3, died at 13.2s, hits 4/16, 60 decisions, 172 ms/decision
+  episode  8 (seed 1241): 4 kills, reward 3, died at 12.1s, hits 4/19, 54 decisions, 174 ms/decision
+  episode  9 (seed 1242): 5 kills, reward 4, died at 13.9s, hits 5/17, 64 decisions, 174 ms/decision
+  episode 10 (seed 1243): 5 kills, reward 4, died at 13.7s, hits 5/24, 63 decisions, 171 ms/decision
+  episode 11 (seed 1244): 4 kills, reward 3, died at 12.6s, hits 4/14, 57 decisions, 173 ms/decision
+  episode 12 (seed 1245): 7 kills, reward 6, died at 16.9s, hits 7/23, 77 decisions, 172 ms/decision
+  episode 13 (seed 1246): 3 kills, reward 2, died at 13.0s, hits 3/14, 58 decisions, 174 ms/decision
+  episode 14 (seed 1247): 5 kills, reward 4, died at 13.2s, hits 5/13, 59 decisions, 174 ms/decision
+  episode 15 (seed 1248): 4 kills, reward 3, died at 12.7s, hits 4/17, 58 decisions, 172 ms/decision
+  episode 16 (seed 1249): 5 kills, reward 4, died at 14.0s, hits 5/20, 63 decisions, 173 ms/decision
+  episode 17 (seed 1250): 1 kills, reward 0, died at 8.2s, hits 1/6, 37 decisions, 174 ms/decision
+  episode 18 (seed 1251): 4 kills, reward 3, died at 12.1s, hits 4/14, 54 decisions, 173 ms/decision
+  episode 19 (seed 1252): 9 kills, reward 8, died at 23.3s, hits 9/26, 107 decisions, 173 ms/decision
+  episode 20 (seed 1253): 6 kills, reward 5, died at 15.6s, hits 6/21, 71 decisions, 172 ms/decision
+[cribl_compact_live_tics8] kills 4.85±1.63 reward 3.85 survival 13.7s acc 0.269 decisions 1243 fallbacks 0 lat p50 173.5ms p95 175.0ms
+

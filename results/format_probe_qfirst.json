@@ -1,0 +1,1754 @@
+{
+ "summary": {
+  "plain_letter_qfirst/adapter": {
+   "n": 54,
+   "skipped": 0,
+   "acc": 0.8518518518518519,
+   "p_true": 0.7924719060209319,
+   "mass": 0.9529955552683936,
+   "doom_acc": 0.8571428571428571,
+   "seconds": 24.8,
+   "uplift_acc": 0.12962962962962965,
+   "uplift_p_true": 0.08768907870574993
+  },
+  "plain_letter_qfirst/base": {
+   "n": 54,
+   "skipped": 0,
+   "acc": 0.7222222222222222,
+   "p_true": 0.7047828273151819,
+   "mass": 0.35026353376883046,
+   "doom_acc": 0.5714285714285714,
+   "seconds": 21.8
+  }
+ },
+ "rows": [
+  {
+   "format": "plain_letter_qfirst",
+   "adapter": true,
+   "item": 0,
+   "order": "fwd",
+   "want": "returns",
+   "choice": "returns",
+   "p_true": 0.8957549977247364,
+   "mass": 0.9929581880569458,
+   "probabilities": {
+    "returns": 0.8957549977247364,
+    "shipping": 0.03935672787786721,
+    "billing": 0.06488827439739638
+   },
+   "doom": false
+  },
+  {
+   "format": "plain_letter_qfirst",
+   "adapter": true,
+   "item": 0,
+   "order": "rev",
+   "want": "returns",
+   "choice": "returns",
+   "p_true": 0.9385940735004322,
+   "mass": 0.9940648078918457,
+   "probabilities": {
+    "billing": 0.03639324167552832,
+    "shipping": 0.025012684824039413,
+    "returns": 0.9385940735004322
+   },
+   "doom": false
+  },
+  {
+   "format": "plain_letter_qfirst",
+   "adapter": true,
+   "item": 1,
+   "order": "fwd",
+   "want": "shipping",
+   "choice": "shipping",
+   "p_true": 0.9980503016202098,
+   "mass": 0.9955828189849854,
+   "probabilities": {
+    "returns": 0.001324193609370281,
+    "shipping": 0.9980503016202098,
+    "billing": 0.0006255047704199214
+   },
+   "doom": false
+  },
+  {
+   "format": "plain_letter_qfirst",
+   "adapter": true,
+   "item": 1,
+   "order": "rev",
+   "want": "shipping",
+   "choice": "shipping",
+   "p_true": 0.9970021358270306,
+   "mass": 0.9948500394821167,
+   "probabilities": {
+    "billing": 0.001498932086484707,
+    "shipping": 0.9970021358270306,
+    "returns": 0.001498932086484707
+   },
+   "doom": false
+  },
+  {
+   "format": "plain_letter_qfirst",
+   "adapter": true,
+   "item": 2,
+   "order": "fwd",
+   "want": "billing",
+   "choice": "billing",
+   "p_true": 0.9135146946316708,
+   "mass": 0.9935643672943115,
+   "probabilities": {
+    "returns": 0.07498585245175203,
+    "shipping": 0.01149945291657713,
+    "billing": 0.9135146946316708
+   },
+   "doom": false
+  },
+  {
+   "format": "plain_letter_qfirst",
+   "adapter": true,
+   "item": 2,
+   "order": "rev",
+   "want": "billing",
+   "choice": "billing",
+   "p_true": 0.9643965690374765,
+   "mass": 0.9928179979324341,
+   "probabilities": {
+    "billing": 0.9643965690374765,
+    "shipping": 0.020015412238040587,
+    "returns": 0.015588018724482988
+   },
+   "doom": false
+  },
+  {
+   "format": "plain_letter_qfirst",
+   "adapter": true,
+   "item": 3,
+   "order": "fwd",
+   "want": "network",
+   "choice": "network",
+   "p_true": 0.7931223372377694,
+   "mass": 0.985495924949646,
+   "probabilities": {
+    "network": 0.7931223372377694,
+    "file": 0.050702614694875636,
+    "process": 0.1561750480673549
+   },
+   "doom": false
+  },
+  {
+   "format": "plain_letter_qfirst",
+   "adapter": true,
+   "item": 3,
+   "order": "rev",
+   "want": "network",
+   "choice": "process",
+   "p_true": 0.2887833801658321,
+   "mass": 0.9802898168563843,
+   "probabilities": {
+    "process": 0.6927553159881228,
+    "file": 0.018461303846045184,
+    "network": 0.2887833801658321
+   },
+   "doom": false
+  },
+  {
+   "format": "plain_letter_qfirst",
+   "adapter": true,
+   "item": 4,
+   "order": "fwd",
+   "want": "file",
+   "choice": "process",
+   "p_true": 0.25427521259046565,
+   "mass": 0.9754423499107361,
+   "probabilities": {
+    "network": 0.3264958357998367,
+    "file": 0.25427521259046565,
+    "process": 0.4192289516096977
+   },
+   "doom": false
+  },
+  {
+   "format": "plain_letter_qfirst",
+   "adapter": true,
+   "item": 4,
+   "order": "rev",
+   "want": "file",
+   "choice": "process",
+   "p_true": 0.05578284803554197,
+   "mass": 0.9562308192253113,
+   "probabilities": {
+    "process": 0.8725905572715923,
+    "file": 0.05578284803554197,
+    "network": 0.07162659469286574
+   },
+   "doom": false
+  },
+  {
+   "format": "plain_letter_qfirst",
+   "adapter": true,
+   "item": 5,
+   "order": "fwd",
+   "want": "process",
+   "choice": "process",
+   "p_true": 0.6673667740948568,
+   "mass": 0.9712540507316589,
+   "probabilities": {
+    "network": 0.21666226984287765,
+    "file": 0.11597095606226564,
+    "process": 0.6673667740948568
+   },
+   "doom": false
+  },
+  {
+   "format": "plain_letter_qfirst",
+   "adapter": true,
+   "item": 5,
+   "order": "rev",
+   "want": "process",
+   "choice": "process",
+   "p_true": 0.8023303163772306,
+   "mass": 0.954596221446991,
+   "probabilities": {
+    "process": 0.8023303163772306,
+    "file": 0.07462834455605814,
+    "network": 0.12304133906671118
+   },
+   "doom": false
+  },
+  {
+   "format": "plain_letter_qfirst",
+   "adapter": true,
+   "item": 6,
+   "order": "fwd",
+   "want": "warning",
+   "choice": "warning",
+   "p_true": 0.8214090194651259,
+   "mass": 0.9897644519805908,
+   "probabilities": {
+    "info": 0.06742535823245292,
+    "warning": 0.8214090194651259,
+    "critical": 0.11116562230242114
+   },
+   "doom": false
+  },
+  {
+   "format": "plain_letter_qfirst",
+   "adapter": true,
+   "item": 6,
+   "order": "rev",
+   "want": "warning",
+   "choice": "warning",
+   "p_true": 0.9368079218948074,
+   "mass": 0.9902045130729675,
+   "probabilities": {
+    "critical": 0.02203161062301811,
+    "warning": 0.9368079218948074,
+    "info": 0.0411604674821744
+   },
+   "doom": false
+  },
+  {
+   "format": "plain_letter_qfirst",
+   "adapter": true,
+   "item": 7,
+   "order": "fwd",
+   "want": "critical",
+   "choice": "critical",
+   "p_true": 0.750611584184323,
+   "mass": 0.9908921718597412,
+   "probabilities": {
+    "info": 0.10158423134626793,
+    "warning": 0.147804184469409,
+    "critical": 0.750611584184323
+   },
+   "doom": false
+  },
+  {
+   "format": "plain_letter_qfirst",
+   "adapter": true,
+   "item": 7,
+   "order": "rev",
+   "want": "critical",
+   "choice": "critical",
+   "p_true": 0.5293165764052077,
+   "mass": 0.9884589910507202,
+   "probabilities": {
+    "critical": 0.5293165764052077,
+    "warning": 0.2206519770895884,
+    "info": 0.25003144650520387
+   },
+   "doom": false
+  },
+  {
+   "format": "plain_letter_qfirst",
+   "adapter": true,
+   "item": 8,
+   "order": "fwd",
+   "want": "info",
+   "choice": "info",
+   "p_true": 0.9732433174656985,
+   "mass": 0.9951993227005005,
+   "probabilities": {
+    "info": 0.9732433174656985,
+    "warning": 0.02019902064400353,
+    "critical": 0.0065576618902979875
+   },
+   "doom": false
+  },
+  {
+   "format": "plain_letter_qfirst",
+   "adapter": true,
+   "item": 8,
+   "order": "rev",
+   "want": "info",
+   "choice": "info",
+   "p_true": 0.9696687460413574,
+   "mass": 0.9930623173713684,
+   "probabilities": {
+    "critical": 0.004490457161364614,
+    "warning": 0.025840796797277903,
+    "info": 0.9696687460413574
+   },
+   "doom": false
+  },
+  {
+   "format": "plain_letter_qfirst",
+   "adapter": true,
+   "item": 9,
+   "order": "fwd",
+   "want": "positive",
+   "choice": "positive",
+   "p_true": 0.9975273768433653,
+   "mass": 0.9831997156143188,
+   "probabilities": {
+    "positive": 0.9975273768433653,
+    "negative": 0.0024726231566347748
+   },
+   "doom": false
+  },
+  {
+   "format": "plain_letter_qfirst",
+   "adapter": true,
+   "item": 9,
+   "order": "rev",
+   "want": "positive",
+   "choice": "positive",
+   "p_true": 0.9924227587321393,
+   "mass": 0.968510627746582,
+   "probabilities": {
+    "negative": 0.007577241267860811,
+    "positive": 0.9924227587321393
+   },
+   "doom": false
+  },
+  {
+   "format": "plain_letter_qfirst",
+   "adapter": true,
+   "item": 10,
+   "order": "fwd",
+   "want": "negative",
+   "choice": "negative",
+   "p_true": 0.9241418199787566,
+   "mass": 0.9657823443412781,
+   "probabilities": {
+    "positive": 0.07585818002124356,
+    "negative": 0.9241418199787566
+   },
+   "doom": false
+  },
+  {
+   "format": "plain_letter_qfirst",
+   "adapter": true,
+   "item": 10,
+   "order": "rev",
+   "want": "negative",
+   "choice": "negative",
+   "p_true": 0.9399133498259924,
+   "mass": 0.965977668762207,
+   "probabilities": {
+    "negative": 0.9399133498259924,
+    "positive": 0.06008665017400762
+   },
+   "doom": false
+  },
+  {
+   "format": "plain_letter_qfirst",
+   "adapter": true,
+   "item": 11,
+   "order": "fwd",
+   "want": "42",
+   "choice": "52",
+   "p_true": 0.31375833895895594,
+   "mass": 0.8476584553718567,
+   "probabilities": {
+    "42": 0.31375833895895594,
+    "41": 0.1679427367209163,
+    "32": 0.1154252423991007,
+    "52": 0.40287368192102707
+   },
+   "doom": false
+  },
+  {
+   "format": "plain_letter_qfirst",
+   "adapter": true,
+   "item": 11,
+   "order": "rev",
+   "want": "42",
+   "choice": "42",
+   "p_true": 0.3277078348765934,
+   "mass": 0.8683528304100037,
+   "probabilities": {
+    "52": 0.28920114923129775,
+    "32": 0.0938898666608111,
+    "41": 0.28920114923129775,
+    "42": 0.3277078348765934
+   },
+   "doom": false
+  },
+  {
+   "format": "plain_letter_qfirst",
+   "adapter": true,
+   "item": 12,
+   "order": "fwd",
+   "want": "63",
+   "choice": "72",
+   "p_true": 0.29520481109064195,
+   "mass": 0.8277666568756104,
+   "probabilities": {
+    "56": 0.22990573804383807,
+    "63": 0.29520481109064195,
+    "72": 0.3790504805688875,
+    "16": 0.09583897029663242
+   },
+   "doom": false
+  },
+  {
+   "format": "plain_letter_qfirst",
+   "adapter": true,
+   "item": 12,
+   "order": "rev",
+   "want": "63",
+   "choice": "56",
+   "p_true": 0.26082176297725423,
+   "mass": 0.8288077712059021,
+   "probabilities": {
+    "16": 0.10872668689080742,
+    "72": 0.29554977724383813,
+    "63": 0.26082176297725423,
+    "56": 0.33490177288810025
+   },
+   "doom": false
+  },
+  {
+   "format": "plain_letter_qfirst",
+   "adapter": true,
+   "item": 13,
+   "order": "fwd",
+   "want": "18",
+   "choice": "18",
+   "p_true": 0.9983824934511076,
+   "mass": 0.9752060770988464,
+   "probabilities": {
+    "4": 0.0006257129639093515,
+    "18": 0.9983824934511076,
+    "7": 0.0005878029318681817,
+    "2": 0.00040399065311490164
+   },
+   "doom": false
+  },
+  {
+   "format": "plain_letter_qfirst",
+   "adapter": true,
+   "item": 13,
+   "order": "rev",
+   "want": "18",
+   "choice": "18",
+   "p_true": 0.998286367761396,
+   "mass": 0.9764252305030823,
+   "probabilities": {
+    "2": 0.0003145979441442377,
+    "7": 0.0009690298881880547,
+    "18": 0.998286367761396,
+    "4": 0.00043000440627161883
+   },
+   "doom": false
+  },
+  {
+   "format": "plain_letter_qfirst",
+   "adapter": true,
+   "item": 14,
+   "order": "fwd",
+   "want": "Paris",
+   "choice": "Paris",
+   "p_true": 0.9994036346786171,
+   "mass": 0.9990906119346619,
+   "probabilities": {
+    "Lyon": 0.00033526256962461084,
+    "Paris": 0.9994036346786171,
+    "Marseille": 0.0002611027517581783
+   },
+   "doom": false
+  },
+  {
+   "format": "plain_letter_qfirst",
+   "adapter": true,
+   "item": 14,
+   "order": "rev",
+   "want": "Paris",
+   "choice": "Paris",
+   "p_true": 0.9995055453683602,
+   "mass": 0.9989972114562988,
+   "probabilities": {
+    "Marseille": 0.00021648385697780546,
+    "Paris": 0.9995055453683602,
+    "Lyon": 0.0002779707746620961
+   },
+   "doom": false
+  },
+  {
+   "format": "plain_letter_qfirst",
+   "adapter": true,
+   "item": 15,
+   "order": "fwd",
+   "want": "Mercury",
+   "choice": "Mercury",
+   "p_true": 0.9986747041907392,
+   "mass": 0.9959208369255066,
+   "probabilities": {
+    "Venus": 0.0010319282136174183,
+    "Earth": 9.016888240946976e-05,
+    "Mercury": 0.9986747041907392,
+    "Mars": 0.00020319871323387723
+   },
+   "doom": false
+  },
+  {
+   "format": "plain_letter_qfirst",
+   "adapter": true,
+   "item": 15,
+   "order": "rev",
+   "want": "Mercury",
+   "choice": "Mercury",
+   "p_true": 0.9971168924762217,
+   "mass": 0.9948539137840271,
+   "probabilities": {
+    "Mars": 0.0004572010764144776,
+    "Mercury": 0.9971168924762217,
+    "Earth": 0.00024472210128203333,
+    "Venus": 0.002181184346081854
+   },
+   "doom": false
+  },
+  {
+   "format": "plain_letter_qfirst",
+   "adapter": true,
+   "item": 16,
+   "order": "fwd",
+   "want": "make_reservation",
+   "choice": "make_reservation",
+   "p_true": 0.986600668915034,
+   "mass": 0.9001206159591675,
+   "probabilities": {
+    "search_web": 0.007532789063556546,
+    "make_reservation": 0.986600668915034,
+    "send_email": 0.005866542021409553
+   },
+   "doom": false
+  },
+  {
+   "format": "plain_letter_qfirst",
+   "adapter": true,
+   "item": 16,
+   "order": "rev",
+   "want": "make_reservation",
+   "choice": "make_reservation",
+   "p_true": 0.9868915011922978,
+   "mass": 0.9132531881332397,
+   "probabilities": {
+    "send_email": 0.008538284466865925,
+    "make_reservation": 0.9868915011922978,
+    "search_web": 0.004570214340836159
+   },
+   "doom": false
+  },
+  {
+   "format": "plain_letter_qfirst",
+   "adapter": true,
+   "item": 17,
+   "order": "fwd",
+   "want": "send_email",
+   "choice": "send_email",
+   "p_true": 0.9722628311119856,
+   "mass": 0.8641511797904968,
+   "probabilities": {
+    "search_web": 0.013868584444007202,
+    "make_reservation": 0.013868584444007202,
+    "send_email": 0.9722628311119856
+   },
+   "doom": false
+  },
+  {
+   "format": "plain_letter_qfirst",
+   "adapter": true,
+   "item": 17,
+   "order": "rev",
+   "want": "send_email",
+   "choice": "send_email",
+   "p_true": 0.9734515512076998,
+   "mass": 0.916511058807373,
+   "probabilities": {
+    "send_email": 0.9734515512076998,
+    "make_reservation": 0.01081406991251294,
+    "search_web": 0.01573437887978733
+   },
+   "doom": false
+  },
+  {
+   "format": "plain_letter_qfirst",
+   "adapter": true,
+   "item": 18,
+   "order": "fwd",
+   "want": "alert",
+   "choice": "alert",
+   "p_true": 0.9626731126558706,
+   "mass": 0.7974200248718262,
+   "probabilities": {
+    "alert": 0.9626731126558706,
+    "no_alert": 0.037326887344129464
+   },
+   "doom": false
+  },
+  {
+   "format": "plain_letter_qfirst",
+   "adapter": true,
+   "item": 18,
+   "order": "rev",
+   "want": "alert",
+   "choice": "alert",
+   "p_true": 0.9770226300899744,
+   "mass": 0.8107056021690369,
+   "probabilities": {
+    "no_alert": 0.02297736991002561,
+    "alert": 0.9770226300899744
+   },
+   "doom": false
+  },
+  {
+   "format": "plain_letter_qfirst",
+   "adapter": true,
+   "item": 19,
+   "order": "fwd",
+   "want": "no_alert",
+   "choice": "no_alert",
+   "p_true": 0.7772998611746911,
+   "mass": 0.695648193359375,
+   "probabilities": {
+    "alert": 0.22270013882530884,
+    "no_alert": 0.7772998611746911
+   },
+   "doom": false
+  },
+  {
+   "format": "plain_letter_qfirst",
+   "adapter": true,
+   "item": 19,
+   "order": "rev",
+   "want": "no_alert",
+   "choice": "no_alert",
+   "p_true": 0.9740426428022031,
+   "mass": 0.7045494318008423,
+   "probabilities": {
+    "no_alert": 0.9740426428022031,
+    "alert": 0.02595735719779685
+   },
+   "doom": false
+  },
+  {
+   "format": "plain_letter_qfirst",
+   "adapter": true,
+   "item": 20,
+   "order": "fwd",
+   "want": "ATTACK",
+   "choice": "ATTACK",
+   "p_true": 0.9589699659117558,
+   "mass": 0.9949525594711304,
+   "probabilities": {
+    "ATTACK": 0.9589699659117558,
+    "TURN_LEFT": 0.028958383751124993,
+    "TURN_RIGHT": 0.012071650337119265
+   },
+   "doom": true
+  },
+  {
+   "format": "plain_letter_qfirst",
+   "adapter": true,
+   "item": 20,
+   "order": "rev",
+   "want": "ATTACK",
+   "choice": "ATTACK",
+   "p_true": 0.953731597721005,
+   "mass": 0.9936363697052002,
+   "probabilities": {
+    "TURN_RIGHT": 0.028800198738361614,
+    "TURN_LEFT": 0.01746820354063342,
+    "ATTACK": 0.953731597721005
+   },
+   "doom": true
+  },
+  {
+   "format": "plain_letter_qfirst",
+   "adapter": true,
+   "item": 21,
+   "order": "fwd",
+   "want": "ATTACK",
+   "choice": "ATTACK",
+   "p_true": 0.7880201455540798,
+   "mass": 0.995079755783081,
+   "probabilities": {
+    "ATTACK": 0.7880201455540798,
+    "TURN_LEFT": 0.19924269508789103,
+    "TURN_RIGHT": 0.012737159358029054
+   },
+   "doom": true
+  },
+  {
+   "format": "plain_letter_qfirst",
+   "adapter": true,
+   "item": 21,
+   "order": "rev",
+   "want": "ATTACK",
+   "choice": "ATTACK",
+   "p_true": 0.953731597721005,
+   "mass": 0.9960615038871765,
+   "probabilities": {
+    "TURN_RIGHT": 0.01746820354063342,
+    "TURN_LEFT": 0.028800198738361614,
+    "ATTACK": 0.953731597721005
+   },
+   "doom": true
+  },
+  {
+   "format": "plain_letter_qfirst",
+   "adapter": true,
+   "item": 22,
+   "order": "fwd",
+   "want": "ATTACK",
+   "choice": "ATTACK",
+   "p_true": 0.9828601483210107,
+   "mass": 0.9975977540016174,
+   "probabilities": {
+    "ATTACK": 0.9828601483210107,
+    "TURN_LEFT": 0.009635621842595865,
+    "TURN_RIGHT": 0.007504229836393593
+   },
+   "doom": true
+  },
+  {
+   "format": "plain_letter_qfirst",
+   "adapter": true,
+   "item": 22,
+   "order": "rev",
+   "want": "ATTACK",
+   "choice": "ATTACK",
+   "p_true": 0.974705673215916,
+   "mass": 0.9965935945510864,
+   "probabilities": {
+    "TURN_RIGHT": 0.017852357133423258,
+    "TURN_LEFT": 0.007441969650660847,
+    "ATTACK": 0.974705673215916
+   },
+   "doom": true
+  },
+  {
+   "format": "plain_letter_qfirst",
+   "adapter": true,
+   "item": 23,
+   "order": "fwd",
+   "want": "TURN_LEFT",
+   "choice": "TURN_LEFT",
+   "p_true": 0.8039331638830419,
+   "mass": 0.99440997838974,
+   "probabilities": {
+    "ATTACK": 0.17938173560585702,
+    "TURN_LEFT": 0.8039331638830419,
+    "TURN_RIGHT": 0.01668510051110108
+   },
+   "doom": true
+  },
+  {
+   "format": "plain_letter_qfirst",
+   "adapter": true,
+   "item": 23,
+   "order": "rev",
+   "want": "TURN_LEFT",
+   "choice": "ATTACK",
+   "p_true": 0.17438224799608948,
+   "mass": 0.9952998757362366,
+   "probabilities": {
+    "TURN_RIGHT": 0.04409073709885433,
+    "TURN_LEFT": 0.17438224799608948,
+    "ATTACK": 0.7815270149050562
+   },
+   "doom": true
+  },
+  {
+   "format": "plain_letter_qfirst",
+   "adapter": true,
+   "item": 24,
+   "order": "fwd",
+   "want": "TURN_LEFT",
+   "choice": "TURN_LEFT",
+   "p_true": 0.9340678573057003,
+   "mass": 0.9938032627105713,
+   "probabilities": {
+    "ATTACK": 0.024892065248100614,
+    "TURN_LEFT": 0.9340678573057003,
+    "TURN_RIGHT": 0.04104007744619895
+   },
+   "doom": true
+  },
+  {
+   "format": "plain_letter_qfirst",
+   "adapter": true,
+   "item": 24,
+   "order": "rev",
+   "want": "TURN_LEFT",
+   "choice": "TURN_LEFT",
+   "p_true": 0.8388352715814014,
+   "mass": 0.9945066571235657,
+   "probabilities": {
+    "TURN_RIGHT": 0.12863955526172238,
+    "TURN_LEFT": 0.8388352715814014,
+    "ATTACK": 0.03252517315687623
+   },
+   "doom": true
+  },
+  {
+   "format": "plain_letter_qfirst",
+   "adapter": true,
+   "item": 25,
+   "order": "fwd",
+   "want": "TURN_RIGHT",
+   "choice": "TURN_LEFT",
+   "p_true": 0.34341257999613345,
+   "mass": 0.9945408701896667,
+   "probabilities": {
+    "ATTACK": 0.2674499862175602,
+    "TURN_LEFT": 0.3891374337863064,
+    "TURN_RIGHT": 0.34341257999613345
+   },
+   "doom": true
+  },
+  {
+   "format": "plain_letter_qfirst",
+   "adapter": true,
+   "item": 25,
+   "order": "rev",
+   "want": "TURN_RIGHT",
+   "choice": "TURN_RIGHT",
+   "p_true": 0.5178172830852636,
+   "mass": 0.9951859712600708,
+   "probabilities": {
+    "TURN_RIGHT": 0.5178172830852636,
+    "TURN_LEFT": 0.31407205832030843,
+    "ATTACK": 0.16811065859442792
+   },
+   "doom": true
+  },
+  {
+   "format": "plain_letter_qfirst",
+   "adapter": true,
+   "item": 26,
+   "order": "fwd",
+   "want": "TURN_RIGHT",
+   "choice": "TURN_RIGHT",
+   "p_true": 0.7287182052471037,
+   "mass": 0.9942222237586975,
+   "probabilities": {
+    "ATTACK": 0.08703297828265821,
+    "TURN_LEFT": 0.184248816470238,
+    "TURN_RIGHT": 0.7287182052471037
+   },
+   "doom": true
+  },
+  {
+   "format": "plain_letter_qfirst",
+   "adapter": true,
+   "item": 26,
+   "order": "rev",
+   "want": "TURN_RIGHT",
+   "choice": "TURN_RIGHT",
+   "p_true": 0.6371538909311432,
+   "mass": 0.9922311902046204,
+   "probabilities": {
+    "TURN_RIGHT": 0.6371538909311432,
+    "TURN_LEFT": 0.3410439018462366,
+    "ATTACK": 0.02180220722262021
+   },
+   "doom": true
+  },
+  {
+   "format": "plain_letter_qfirst",
+   "adapter": false,
+   "item": 0,
+   "order": "fwd",
+   "want": "returns",
+   "choice": "returns",
+   "p_true": 0.9871008986751479,
+   "mass": 0.19508661329746246,
+   "probabilities": {
+    "returns": 0.9871008986751479,
+    "shipping": 0.006248067786829129,
+    "billing": 0.006651033538022781
+   },
+   "doom": false
+  },
+  {
+   "format": "plain_letter_qfirst",
+   "adapter": false,
+   "item": 0,
+   "order": "rev",
+   "want": "returns",
+   "choice": "returns",
+   "p_true": 0.8879646831972876,
+   "mass": 0.246550515294075,
+   "probabilities": {
+    "billing": 0.10605225783026939,
+    "shipping": 0.005983058972443041,
+    "returns": 0.8879646831972876
+   },
+   "doom": false
+  },
+  {
+   "format": "plain_letter_qfirst",
+   "adapter": false,
+   "item": 1,
+   "order": "fwd",
+   "want": "shipping",
+   "choice": "shipping",
+   "p_true": 0.9552367612765864,
+   "mass": 0.15331168472766876,
+   "probabilities": {
+    "returns": 0.03942732986840906,
+    "shipping": 0.9552367612765864,
+    "billing": 0.005335908855004499
+   },
+   "doom": false
+  },
+  {
+   "format": "plain_letter_qfirst",
+   "adapter": false,
+   "item": 1,
+   "order": "rev",
+   "want": "shipping",
+   "choice": "shipping",
+   "p_true": 0.9791512057136305,
+   "mass": 0.14949509501457214,
+   "probabilities": {
+    "billing": 0.016847227104921335,
+    "shipping": 0.9791512057136305,
+    "returns": 0.004001567181448119
+   },
+   "doom": false
+  },
+  {
+   "format": "plain_letter_qfirst",
+   "adapter": false,
+   "item": 2,
+   "order": "fwd",
+   "want": "billing",
+   "choice": "returns",
+   "p_true": 0.3591881057825386,
+   "mass": 0.2132764756679535,
+   "probabilities": {
+    "returns": 0.5922010701861591,
+    "shipping": 0.04861082403130227,
+    "billing": 0.3591881057825386
+   },
+   "doom": false
+  },
+  {
+   "format": "plain_letter_qfirst",
+   "adapter": false,
+   "item": 2,
+   "order": "rev",
+   "want": "billing",
+   "choice": "billing",
+   "p_true": 0.9558895281021007,
+   "mass": 0.17308194935321808,
+   "probabilities": {
+    "billing": 0.9558895281021007,
+    "shipping": 0.01863687882070342,
+    "returns": 0.025473593077195794
+   },
+   "doom": false
+  },
+  {
+   "format": "plain_letter_qfirst",
+   "adapter": false,
+   "item": 3,
+   "order": "fwd",
+   "want": "network",
+   "choice": "network",
+   "p_true": 0.8421164512966888,
+   "mass": 0.3839895725250244,
+   "probabilities": {
+    "network": 0.8421164512966888,
+    "file": 0.08875842095745999,
+    "process": 0.06912512774585124
+   },
+   "doom": false
+  },
+  {
+   "format": "plain_letter_qfirst",
+   "adapter": false,
+   "item": 3,
+   "order": "rev",
+   "want": "network",
+   "choice": "process",
+   "p_true": 0.36749019620959117,
+   "mass": 0.3569597601890564,
+   "probabilities": {
+    "process": 0.6058889032645166,
+    "file": 0.026620900525892187,
+    "network": 0.36749019620959117
+   },
+   "doom": false
+  },
+  {
+   "format": "plain_letter_qfirst",
+   "adapter": false,
+   "item": 4,
+   "order": "fwd",
+   "want": "file",
+   "choice": "file",
+   "p_true": 0.699275421755728,
+   "mass": 0.39792126417160034,
+   "probabilities": {
+    "network": 0.2270214910360477,
+    "file": 0.699275421755728,
+    "process": 0.07370308720822437
+   },
+   "doom": false
+  },
+  {
+   "format": "plain_letter_qfirst",
+   "adapter": false,
+   "item": 4,
+   "order": "rev",
+   "want": "file",
+   "choice": "file",
+   "p_true": 0.5401783173692418,
+   "mass": 0.3714357614517212,
+   "probabilities": {
+    "process": 0.4206912965653594,
+    "file": 0.5401783173692418,
+    "network": 0.039130386065398655
+   },
+   "doom": false
+  },
+  {
+   "format": "plain_letter_qfirst",
+   "adapter": false,
+   "item": 5,
+   "order": "fwd",
+   "want": "process",
+   "choice": "network",
+   "p_true": 0.31916776845385925,
+   "mass": 0.3486335873603821,
+   "probabilities": {
+    "network": 0.36166446309228156,
+    "file": 0.31916776845385925,
+    "process": 0.31916776845385925
+   },
+   "doom": false
+  },
+  {
+   "format": "plain_letter_qfirst",
+   "adapter": false,
+   "item": 5,
+   "order": "rev",
+   "want": "process",
+   "choice": "process",
+   "p_true": 0.8990522695867426,
+   "mass": 0.3268401026725769,
+   "probabilities": {
+    "process": 0.8990522695867426,
+    "file": 0.027149026101416524,
+    "network": 0.07379870431184087
+   },
+   "doom": false
+  },
+  {
+   "format": "plain_letter_qfirst",
+   "adapter": false,
+   "item": 6,
+   "order": "fwd",
+   "want": "warning",
+   "choice": "warning",
+   "p_true": 0.6845123928596539,
+   "mass": 0.5417713522911072,
+   "probabilities": {
+    "info": 0.2518180365601363,
+    "warning": 0.6845123928596539,
+    "critical": 0.06366957058020974
+   },
+   "doom": false
+  },
+  {
+   "format": "plain_letter_qfirst",
+   "adapter": false,
+   "item": 6,
+   "order": "rev",
+   "want": "warning",
+   "choice": "warning",
+   "p_true": 0.759435536377553,
+   "mass": 0.525873601436615,
+   "probabilities": {
+    "critical": 0.19201537405746133,
+    "warning": 0.759435536377553,
+    "info": 0.04854908956498572
+   },
+   "doom": false
+  },
+  {
+   "format": "plain_letter_qfirst",
+   "adapter": false,
+   "item": 7,
+   "order": "fwd",
+   "want": "critical",
+   "choice": "critical",
+   "p_true": 0.8579768106084573,
+   "mass": 0.5683002471923828,
+   "probabilities": {
+    "info": 0.02590865471740153,
+    "warning": 0.11611453467414118,
+    "critical": 0.8579768106084573
+   },
+   "doom": false
+  },
+  {
+   "format": "plain_letter_qfirst",
+   "adapter": false,
+   "item": 7,
+   "order": "rev",
+   "want": "critical",
+   "choice": "critical",
+   "p_true": 0.9691205866617008,
+   "mass": 0.5676816701889038,
+   "probabilities": {
+    "critical": 0.9691205866617008,
+    "warning": 0.020113456095935046,
+    "info": 0.010765957242364186
+   },
+   "doom": false
+  },
+  {
+   "format": "plain_letter_qfirst",
+   "adapter": false,
+   "item": 8,
+   "order": "fwd",
+   "want": "info",
+   "choice": "info",
+   "p_true": 0.9879474096518971,
+   "mass": 0.4986749589443207,
+   "probabilities": {
+    "info": 0.9879474096518971,
+    "warning": 0.009098681084359054,
+    "critical": 0.002953909263743911
+   },
+   "doom": false
+  },
+  {
+   "format": "plain_letter_qfirst",
+   "adapter": false,
+   "item": 8,
+   "order": "rev",
+   "want": "info",
+   "choice": "warning",
+   "p_true": 0.4102765439305901,
+   "mass": 0.5019863843917847,
+   "probabilities": {
+    "critical": 0.06291794579172748,
+    "warning": 0.5268055102776824,
+    "info": 0.4102765439305901
+   },
+   "doom": false
+  },
+  {
+   "format": "plain_letter_qfirst",
+   "adapter": false,
+   "item": 9,
+   "order": "fwd",
+   "want": "positive",
+   "choice": "positive",
+   "p_true": 0.995929862284104,
+   "mass": 0.14937281608581543,
+   "probabilities": {
+    "positive": 0.995929862284104,
+    "negative": 0.004070137715896127
+   },
+   "doom": false
+  },
+  {
+   "format": "plain_letter_qfirst",
+   "adapter": false,
+   "item": 9,
+   "order": "rev",
+   "want": "positive",
+   "choice": "positive",
+   "p_true": 0.7549149868676283,
+   "mass": 0.13267742097377777,
+   "probabilities": {
+    "negative": 0.24508501313237172,
+    "positive": 0.7549149868676283
+   },
+   "doom": false
+  },
+  {
+   "format": "plain_letter_qfirst",
+   "adapter": false,
+   "item": 10,
+   "order": "fwd",
+   "want": "negative",
+   "choice": "negative",
+   "p_true": 0.8519528019683106,
+   "mass": 0.2443138211965561,
+   "probabilities": {
+    "positive": 0.1480471980316895,
+    "negative": 0.8519528019683106
+   },
+   "doom": false
+  },
+  {
+   "format": "plain_letter_qfirst",
+   "adapter": false,
+   "item": 10,
+   "order": "rev",
+   "want": "negative",
+   "choice": "negative",
+   "p_true": 0.9937100978631075,
+   "mass": 0.22408509254455566,
+   "probabilities": {
+    "negative": 0.9937100978631075,
+    "positive": 0.0062899021368924835
+   },
+   "doom": false
+  },
+  {
+   "format": "plain_letter_qfirst",
+   "adapter": false,
+   "item": 11,
+   "order": "fwd",
+   "want": "42",
+   "choice": "42",
+   "p_true": 0.4967046471119792,
+   "mass": 0.245443657040596,
+   "probabilities": {
+    "42": 0.4967046471119792,
+    "41": 0.26586683896517893,
+    "32": 0.16125638923326246,
+    "52": 0.07617212468957947
+   },
+   "doom": false
+  },
+  {
+   "format": "plain_letter_qfirst",
+   "adapter": false,
+   "item": 11,
+   "order": "rev",
+   "want": "42",
+   "choice": "41",
+   "p_true": 0.2994736120624461,
+   "mass": 0.2393430918455124,
+   "probabilities": {
+    "52": 0.20582500285132593,
+    "32": 0.058969850630667196,
+    "41": 0.43573153445556084,
+    "42": 0.2994736120624461
+   },
+   "doom": false
+  },
+  {
+   "format": "plain_letter_qfirst",
+   "adapter": false,
+   "item": 12,
+   "order": "fwd",
+   "want": "63",
+   "choice": "72",
+   "p_true": 0.29501549379211955,
+   "mass": 0.21129609644412994,
+   "probabilities": {
+    "56": 0.2603502594860105,
+    "63": 0.29501549379211955,
+    "72": 0.37880739234576616,
+    "16": 0.06582685437610375
+   },
+   "doom": false
+  },
+  {
+   "format": "plain_letter_qfirst",
+   "adapter": false,
+   "item": 12,
+   "order": "rev",
+   "want": "63",
+   "choice": "72",
+   "p_true": 0.22585997039769945,
+   "mass": 0.18847160041332245,
+   "probabilities": {
+    "16": 0.17589992181021266,
+    "72": 0.37238013739438836,
+    "63": 0.22585997039769945,
+    "56": 0.22585997039769945
+   },
+   "doom": false
+  },
+  {
+   "format": "plain_letter_qfirst",
+   "adapter": false,
+   "item": 13,
+   "order": "fwd",
+   "want": "18",
+   "choice": "18",
+   "p_true": 0.9924498581903584,
+   "mass": 0.35053926706314087,
+   "probabilities": {
+    "4": 0.004317499825276954,
+    "18": 0.9924498581903584,
+    "7": 0.0013167630506224803,
+    "2": 0.0019158789337421808
+   },
+   "doom": false
+  },
+  {
+   "format": "plain_letter_qfirst",
+   "adapter": false,
+   "item": 13,
+   "order": "rev",
+   "want": "18",
+   "choice": "18",
+   "p_true": 0.9882348085842796,
+   "mass": 0.32690370082855225,
+   "probabilities": {
+    "2": 0.0021617548664572754,
+    "7": 0.006255245113874339,
+    "18": 0.9882348085842796,
+    "4": 0.003348191435388812
+   },
+   "doom": false
+  },
+  {
+   "format": "plain_letter_qfirst",
+   "adapter": false,
+   "item": 14,
+   "order": "fwd",
+   "want": "Paris",
+   "choice": "Paris",
+   "p_true": 0.997689136171928,
+   "mass": 0.6964514255523682,
+   "probabilities": {
+    "Lyon": 0.0020502090037201903,
+    "Paris": 0.997689136171928,
+    "Marseille": 0.00026065482435182484
+   },
+   "doom": false
+  },
+  {
+   "format": "plain_letter_qfirst",
+   "adapter": false,
+   "item": 14,
+   "order": "rev",
+   "want": "Paris",
+   "choice": "Paris",
+   "p_true": 0.9977963045760843,
+   "mass": 0.6959799528121948,
+   "probabilities": {
+    "Marseille": 0.001926200003281625,
+    "Paris": 0.9977963045760843,
+    "Lyon": 0.00027749542063398223
+   },
+   "doom": false
+  },
+  {
+   "format": "plain_letter_qfirst",
+   "adapter": false,
+   "item": 15,
+   "order": "fwd",
+   "want": "Mercury",
+   "choice": "Mercury",
+   "p_true": 0.9948526669853203,
+   "mass": 0.5173771381378174,
+   "probabilities": {
+    "Venus": 0.00406573546491541,
+    "Earth": 0.00022937309917412285,
+    "Mercury": 0.9948526669853203,
+    "Mars": 0.0008522244505903328
+   },
+   "doom": false
+  },
+  {
+   "format": "plain_letter_qfirst",
+   "adapter": false,
+   "item": 15,
+   "order": "rev",
+   "want": "Mercury",
+   "choice": "Mercury",
+   "p_true": 0.994406007179584,
+   "mass": 0.4792317748069763,
+   "probabilities": {
+    "Mars": 0.002793081819967311,
+    "Mercury": 0.994406007179584,
+    "Earth": 0.00048536484223546584,
+    "Venus": 0.0023155461582132076
+   },
+   "doom": false
+  },
+  {
+   "format": "plain_letter_qfirst",
+   "adapter": false,
+   "item": 16,
+   "order": "fwd",
+   "want": "make_reservation",
+   "choice": "make_reservation",
+   "p_true": 0.9926461403805452,
+   "mass": 0.3681265115737915,
+   "probabilities": {
+    "search_web": 0.004893335838327027,
+    "make_reservation": 0.9926461403805452,
+    "send_email": 0.0024605237811277363
+   },
+   "doom": false
+  },
+  {
+   "format": "plain_letter_qfirst",
+   "adapter": false,
+   "item": 16,
+   "order": "rev",
+   "want": "make_reservation",
+   "choice": "make_reservation",
+   "p_true": 0.9940844536854744,
+   "mass": 0.35287171602249146,
+   "probabilities": {
+    "send_email": 0.004324610880516995,
+    "make_reservation": 0.9940844536854744,
+    "search_web": 0.001590935434008531
+   },
+   "doom": false
+  },
+  {
+   "format": "plain_letter_qfirst",
+   "adapter": false,
+   "item": 17,
+   "order": "fwd",
+   "want": "send_email",
+   "choice": "send_email",
+   "p_true": 0.9751833393510959,
+   "mass": 0.41243553161621094,
+   "probabilities": {
+    "search_web": 0.022934113937873358,
+    "make_reservation": 0.0018825467110306728,
+    "send_email": 0.9751833393510959
+   },
+   "doom": false
+  },
+  {
+   "format": "plain_letter_qfirst",
+   "adapter": false,
+   "item": 17,
+   "order": "rev",
+   "want": "send_email",
+   "choice": "send_email",
+   "p_true": 0.9891082625401069,
+   "mass": 0.3723543584346771,
+   "probabilities": {
+    "send_email": 0.9891082625401069,
+    "make_reservation": 0.007094386179166883,
+    "search_web": 0.003797351280726247
+   },
+   "doom": false
+  },
+  {
+   "format": "plain_letter_qfirst",
+   "adapter": false,
+   "item": 18,
+   "order": "fwd",
+   "want": "alert",
+   "choice": "alert",
+   "p_true": 0.9966233876182606,
+   "mass": 0.42714419960975647,
+   "probabilities": {
+    "alert": 0.9966233876182606,
+    "no_alert": 0.0033766123817395013
+   },
+   "doom": false
+  },
+  {
+   "format": "plain_letter_qfirst",
+   "adapter": false,
+   "item": 18,
+   "order": "rev",
+   "want": "alert",
+   "choice": "alert",
+   "p_true": 0.9149009549929797,
+   "mass": 0.38657259941101074,
+   "probabilities": {
+    "no_alert": 0.08509904500702024,
+    "alert": 0.9149009549929797
+   },
+   "doom": false
+  },
+  {
+   "format": "plain_letter_qfirst",
+   "adapter": false,
+   "item": 19,
+   "order": "fwd",
+   "want": "no_alert",
+   "choice": "alert",
+   "p_true": 0.012431650853185818,
+   "mass": 0.42769286036491394,
+   "probabilities": {
+    "alert": 0.9875683491468141,
+    "no_alert": 0.012431650853185818
+   },
+   "doom": false
+  },
+  {
+   "format": "plain_letter_qfirst",
+   "adapter": false,
+   "item": 19,
+   "order": "rev",
+   "want": "no_alert",
+   "choice": "alert",
+   "p_true": 0.32082130082460697,
+   "mass": 0.3831789195537567,
+   "probabilities": {
+    "no_alert": 0.32082130082460697,
+    "alert": 0.679178699175393
+   },
+   "doom": false
+  },
+  {
+   "format": "plain_letter_qfirst",
+   "adapter": false,
+   "item": 20,
+   "order": "fwd",
+   "want": "ATTACK",
+   "choice": "ATTACK",
+   "p_true": 0.9430450161270122,
+   "mass": 0.26160353422164917,
+   "probabilities": {
+    "ATTACK": 0.9430450161270122,
+    "TURN_LEFT": 0.02847749193649392,
+    "TURN_RIGHT": 0.02847749193649392
+   },
+   "doom": true
+  },
+  {
+   "format": "plain_letter_qfirst",
+   "adapter": false,
+   "item": 20,
+   "order": "rev",
+   "want": "ATTACK",
+   "choice": "ATTACK",
+   "p_true": 0.7782194776934128,
+   "mass": 0.34220096468925476,
+   "probabilities": {
+    "TURN_RIGHT": 0.19676469818738343,
+    "TURN_LEFT": 0.02501582411920376,
+    "ATTACK": 0.7782194776934128
+   },
+   "doom": true
+  },
+  {
+   "format": "plain_letter_qfirst",
+   "adapter": false,
+   "item": 21,
+   "order": "fwd",
+   "want": "ATTACK",
+   "choice": "ATTACK",
+   "p_true": 0.9385940735004322,
+   "mass": 0.27805355191230774,
+   "probabilities": {
+    "ATTACK": 0.9385940735004322,
+    "TURN_LEFT": 0.03639324167552832,
+    "TURN_RIGHT": 0.025012684824039413
+   },
+   "doom": true
+  },
+  {
+   "format": "plain_letter_qfirst",
+   "adapter": false,
+   "item": 21,
+   "order": "rev",
+   "want": "ATTACK",
+   "choice": "ATTACK",
+   "p_true": 0.869844814492588,
+   "mass": 0.3738495111465454,
+   "probabilities": {
+    "TURN_RIGHT": 0.10388814812626387,
+    "TURN_LEFT": 0.02626703738114819,
+    "ATTACK": 0.869844814492588
+   },
+   "doom": true
+  },
+  {
+   "format": "plain_letter_qfirst",
+   "adapter": false,
+   "item": 22,
+   "order": "fwd",
+   "want": "ATTACK",
+   "choice": "ATTACK",
+   "p_true": 0.9854978476145748,
+   "mass": 0.26883646845817566,
+   "probabilities": {
+    "ATTACK": 0.9854978476145748,
+    "TURN_LEFT": 0.0035542602078295735,
+    "TURN_RIGHT": 0.010947892177595555
+   },
+   "doom": true
+  },
+  {
+   "format": "plain_letter_qfirst",
+   "adapter": false,
+   "item": 22,
+   "order": "rev",
+   "want": "ATTACK",
+   "choice": "ATTACK",
+   "p_true": 0.8684334011096695,
+   "mass": 0.39398959279060364,
+   "probabilities": {
+    "TURN_RIGHT": 0.117529680311312,
+    "TURN_LEFT": 0.014036918579018625,
+    "ATTACK": 0.8684334011096695
+   },
+   "doom": true
+  },
+  {
+   "format": "plain_letter_qfirst",
+   "adapter": false,
+   "item": 23,
+   "order": "fwd",
+   "want": "TURN_LEFT",
+   "choice": "ATTACK",
+   "p_true": 0.09071942739079611,
+   "mass": 0.2665846645832062,
+   "probabilities": {
+    "ATTACK": 0.8607219623095815,
+    "TURN_LEFT": 0.09071942739079611,
+    "TURN_RIGHT": 0.04855861029962234
+   },
+   "doom": true
+  },
+  {
+   "format": "plain_letter_qfirst",
+   "adapter": false,
+   "item": 23,
+   "order": "rev",
+   "want": "TURN_LEFT",
+   "choice": "ATTACK",
+   "p_true": 0.06149036355048325,
+   "mass": 0.3825713098049164,
+   "probabilities": {
+    "TURN_RIGHT": 0.18940365385429367,
+    "TURN_LEFT": 0.06149036355048325,
+    "ATTACK": 0.7491059825952231
+   },
+   "doom": true
+  },
+  {
+   "format": "plain_letter_qfirst",
+   "adapter": false,
+   "item": 24,
+   "order": "fwd",
+   "want": "TURN_LEFT",
+   "choice": "TURN_LEFT",
+   "p_true": 0.4754087117437437,
+   "mass": 0.2957663834095001,
+   "probabilities": {
+    "ATTACK": 0.3702486769849954,
+    "TURN_LEFT": 0.4754087117437437,
+    "TURN_RIGHT": 0.15434261127126087
+   },
+   "doom": true
+  },
+  {
+   "format": "plain_letter_qfirst",
+   "adapter": false,
+   "item": 24,
+   "order": "rev",
+   "want": "TURN_LEFT",
+   "choice": "TURN_RIGHT",
+   "p_true": 0.3333333333333333,
+   "mass": 0.3530009686946869,
+   "probabilities": {
+    "TURN_RIGHT": 0.3333333333333333,
+    "TURN_LEFT": 0.3333333333333333,
+    "ATTACK": 0.3333333333333333
+   },
+   "doom": true
+  },
+  {
+   "format": "plain_letter_qfirst",
+   "adapter": false,
+   "item": 25,
+   "order": "fwd",
+   "want": "TURN_RIGHT",
+   "choice": "ATTACK",
+   "p_true": 0.05127094282878099,
+   "mass": 0.27801114320755005,
+   "probabilities": {
+    "ATTACK": 0.9087992067473553,
+    "TURN_LEFT": 0.039929850423863864,
+    "TURN_RIGHT": 0.05127094282878099
+   },
+   "doom": true
+  },
+  {
+   "format": "plain_letter_qfirst",
+   "adapter": false,
+   "item": 25,
+   "order": "rev",
+   "want": "TURN_RIGHT",
+   "choice": "ATTACK",
+   "p_true": 0.41328235772219135,
+   "mass": 0.4061257243156433,
+   "probabilities": {
+    "TURN_RIGHT": 0.41328235772219135,
+    "TURN_LEFT": 0.11840737794509683,
+    "ATTACK": 0.46831026433271183
+   },
+   "doom": true
+  },
+  {
+   "format": "plain_letter_qfirst",
+   "adapter": false,
+   "item": 26,
+   "order": "fwd",
+   "want": "TURN_RIGHT",
+   "choice": "ATTACK",
+   "p_true": 0.16792394901497845,
+   "mass": 0.2890367805957794,
+   "probabilities": {
+    "ATTACK": 0.664152101970043,
+    "TURN_LEFT": 0.16792394901497845,
+    "TURN_RIGHT": 0.16792394901497845
+   },
+   "doom": true
+  },
+  {
+   "format": "plain_letter_qfirst",
+   "adapter": false,
+   "item": 26,
+   "order": "rev",
+   "want": "TURN_RIGHT",
+   "choice": "TURN_RIGHT",
+   "p_true": 0.5453383271076292,
+   "mass": 0.3718660771846771,
+   "probabilities": {
+    "TURN_RIGHT": 0.5453383271076292,
+    "TURN_LEFT": 0.22733083644618537,
+    "ATTACK": 0.22733083644618537
+   },
+   "doom": true
+  }
+ ]
+}

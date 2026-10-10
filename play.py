@@ -5,7 +5,7 @@
 No API key, no model. Just you, the same map, the same seed, and the same
 counter the bots were measured on. Mouse or arrow keys turn, Ctrl or the mouse
 button fires. You cannot walk: defend_the_center gives you three buttons, which
-is exactly what Jev gets.
+is exactly what the models get.
 """
 from __future__ import annotations
 
@@ -27,8 +27,6 @@ def main() -> int:
     g.set_screen_resolution(vzd.ScreenResolution.RES_800X600)
     # SPECTATOR hands input to you; the script just watches and keeps score.
     g.set_mode(vzd.Mode.SPECTATOR)
-    if a.seed >= 0:
-        g.set_seed(a.seed)
     g.init()
 
     print(f"defend_the_center · seed {a.seed if a.seed >= 0 else 'random'} · "
@@ -36,6 +34,8 @@ def main() -> int:
     print("  turn with the mouse or arrow keys, fire with Ctrl.\n")
     scores = []
     for i in range(a.episodes):
+        if a.seed >= 0:
+            g.set_seed(a.seed + i)      # same per-episode seeds as the bots
         g.new_episode()
         while not g.is_episode_finished():
             g.advance_action()
@@ -45,9 +45,7 @@ def main() -> int:
 
     mean = statistics.mean(scores)
     print(f"\n  YOU: {mean:.2f} kills over {len(scores)} episodes")
-    print("  for reference, over 20 episodes on this seed:")
-    print("    random 0.75 · hand-coded 6.55 · Jev (given the rule) 6.55 · "
-          "Jev (judging for itself) -0.60")
+    print("  compare with the bots on the same seeds: results/REPORT.md")
     return 0
 
 
