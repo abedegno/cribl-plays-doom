@@ -2,7 +2,9 @@
 
     python doom_agent.py --brain heuristic                  # no model needed
     python doom_agent.py --brain cribl --episodes 20 --seed 1234
+    python doom_agent.py --brain cribl2 --size 4b --state compact   # Cribl Decision 2
     python doom_agent.py --brain jev                        # needs TYPESAFE_API_KEY
+    python doom_agent.py --iwad ~/Games/doom2.wad ...       # original Doom II art
 
 The model gets a structured description of the world (health, ammo, monster
 bearings and distances) and returns one of three buttons with a probability
@@ -81,6 +83,14 @@ CRITERIA_INSTRUCTIONS = {"rule": "default", "intent": "default", "minimal": "def
                          "goal": "goal"}
 
 MONSTERS = ("Demon", "Cacodemon", "ZombieMan", "ShotgunGuy", "HellKnight", "Imp", "Revenant")
+# defend_the_center's ACS spawns three chainsaw marines and two demons as
+# targets; marines walk in, attack, and count as kills like demons. Up to
+# 2026-11 this file (and the original Jev project) treated them as decoration
+# and left them out of the state, so every brain could only see two of the
+# five enemies. TARGETS["demons"] reproduces that original benchmark exactly.
+MARINE = "MarineChainsawVzd"
+TARGETS = {"all": MONSTERS + (MARINE,), "demons": MONSTERS}
+KIND = {MARINE: "Marine"}
 GAME_VARS = [vzd.GameVariable.HEALTH, vzd.GameVariable.AMMO2,
              vzd.GameVariable.POSITION_X, vzd.GameVariable.POSITION_Y, vzd.GameVariable.ANGLE,
              # below here: scoring only, never put in the model's state
@@ -89,7 +99,8 @@ GAME_VARS = [vzd.GameVariable.HEALTH, vzd.GameVariable.AMMO2,
 FOV_HALF_DEG = 45   # ViZDoom default 90 degree horizontal field of view
 
 
-def describe(state, history: list[str] | None = None, rich: bool | str = False) -> dict:
+def describe(state, history: list[str] | None = None, rich: bool | str = False,
+             targets: str = "all") -> dict:
     """The whole game as structured state.
 
     The default ("jev") state is byte-for-byte what the original Jev agent
@@ -99,16 +110,15 @@ def describe(state, history: list[str] | None = None, rich: bool | str = False) 
     """
     hp, ammo, px, py, ang = state.game_variables[:5]
     monsters = []
+    wanted = TARGETS[targets]
     for o in state.objects:
-        # MarineChainsawVzd is decoration standing around the arena, not a
-        # threat. Leaving it in made both brains aim at furniture.
-        if o.name in MONSTERS:
+        if o.name in wanted:
             dx, dy = o.position_x - px, o.position_y - py
             dist = math.hypot(dx, dy)
             # bearing relative to where the player is facing: 0 = dead ahead,
             # positive = to the left. This is the number the decision turns on.
             bearing = (math.degrees(math.atan2(dy, dx)) - ang + 540) % 360 - 180
-            monsters.append({"kind": o.name, "distance": round(dist),
+            monsters.append({"kind": KIND.get(o.name, o.name), "distance": round(dist),
                              "bearing_deg": round(bearing)})
     # Nearest by DISTANCE, not by bearing: sorting on bearing made the target
     # flip between monsters on either side as the player turned, so it spun in
@@ -290,13 +300,64 @@ class CriblDecisionBrain:
         return self.decide(desc).action
 
 
+class Cribl2Brain:
+    """Cribl Decision 2 (cribl_decision2.py): the same question, the same
+    option wording and order, and the same state as the 1.0 brain. Decision 2
+    defines its own prompt layout, so `--format` does not apply."""
+    name = "cribl2"
+
+    def __init__(self, model=None, size: str = "4b", criteria: str = "rule",
+                 option_order: list[str] | None = None, conf_floor: float = 0.0,
+                 on_error: str = "raise", backend: str = "auto", device: str | None = None):
+        import cribl_decision2 as c2
+        self.model = model or c2.load(size, backend, device)
+        crit = CRITERIA[criteria]
+        self.options = {k: crit[k] for k in (option_order or OPTION_ORDER)}
+        self.question = INSTRUCTIONS[CRITERIA_INSTRUCTIONS[criteria]]
+        self.conf_floor, self.on_error = conf_floor, on_error
+
+    def decide(self, desc: dict) -> Decision:
+        try:
+            a, timing = self.model.decide(desc, self.question, self.options)
+        except Exception as e:                       # noqa: BLE001
+            if self.on_error == "raise":
+                raise
+            sub = heuristic(desc) if self.on_error == "heuristic" else "TURN_RIGHT"
+            return Decision(sub, fallback=f"error:{type(e).__name__}")
+        d = Decision(a.choice, a.probabilities, a.confidence, a.p_selected, timing["total_ms"],
+                     extra={"tokens": timing.get("tokens")})
+        if a.confidence < self.conf_floor:
+            d.model_action, d.action, d.fallback = a.choice, heuristic(desc), "low_confidence"
+        return d
+
+    def __call__(self, desc: dict) -> str:
+        return self.decide(desc).action
+
+
 # ---------------------------------------------------------------------------
 # Game loop
 # ---------------------------------------------------------------------------
 
-def make_game(render: bool = False, window: bool = False) -> vzd.DoomGame:
+def resolve_iwad(iwad: str | None) -> str | None:
+    """The game data (graphics, sounds) to run the scenario on. None means
+    ViZDoom's bundled Freedoom. The scenario itself, the monsters' behaviour
+    and every number the benchmark records come from the scenario WAD and the
+    engine, not from the IWAD, so scores do not depend on this choice."""
+    iwad = iwad or os.environ.get("DOOM_IWAD") or None
+    if iwad is None or iwad.lower() == "freedoom":
+        return None
+    path = os.path.expanduser(iwad)
+    if not os.path.isfile(path):
+        raise FileNotFoundError(f"IWAD not found: {path}")
+    return path
+
+
+def make_game(render: bool = False, window: bool = False, iwad: str | None = None) -> vzd.DoomGame:
     g = vzd.DoomGame()
     g.load_config(os.path.join(vzd.scenarios_path, "defend_the_center.cfg"))
+    path = resolve_iwad(iwad)
+    if path:
+        g.set_doom_game_path(path)
     g.set_window_visible(window)
     g.set_objects_info_enabled(True)
     g.set_available_game_variables(GAME_VARS)
@@ -378,7 +439,7 @@ def _decide(brain, desc) -> Decision:
 
 
 def run_episode(g, brain, ep: int, seed: int | None, tics: int, rich: bool,
-                tracer: Tracer | None = None, on_tic=None) -> EpisodeResult:
+                tracer: Tracer | None = None, on_tic=None, targets: str = "all") -> EpisodeResult:
     """Lock-step: the game waits for every decision, so game-time results do
     not depend on how slow the brain is. Wall-clock cost is measured apart."""
     if seed is not None:
@@ -392,7 +453,7 @@ def run_episode(g, brain, ep: int, seed: int | None, tics: int, rich: bool,
         s = g.get_state()
         if s is None:
             break
-        desc = describe(s, history, rich)
+        desc = describe(s, history, rich, targets)
         t0 = time.monotonic()
         d = _decide(brain, desc)
         dt = (time.monotonic() - t0) * 1000
@@ -426,7 +487,7 @@ def run_episode(g, brain, ep: int, seed: int | None, tics: int, rich: bool,
 
 
 def run_episode_live(g, brain, ep: int, seed: int | None, tics: int, rich: bool,
-                     tracer: Tracer | None = None, on_tic=None) -> EpisodeResult:
+                     tracer: Tracer | None = None, on_tic=None, targets: str = "all") -> EpisodeResult:
     """Real-time: the game advances at 35 tics/s of wall clock whether or not
     the model has answered. A worker thread takes the latest state snapshot,
     decides, and posts the action; the game applies it for `tics` tics and then
@@ -472,7 +533,7 @@ def run_episode_live(g, brain, ep: int, seed: int | None, tics: int, rich: bool,
                 break
             with lock:
                 if snapshot["desc"] is None and not pending:
-                    snapshot["desc"] = describe(s, history, rich); snapshot["tic"] = s.tic
+                    snapshot["desc"] = describe(s, history, rich, targets); snapshot["tic"] = s.tic
                 got = pending.pop() if pending else None
             if got:
                 d, desc, tic0, dt = got
@@ -564,8 +625,9 @@ def warmup(brain, g):
 
 def play(brain, episodes: int, tics: int, quiet: bool, seed: int | None,
          rich: bool = False, trace: str | None = None, live: bool = False,
-         name: str = "brain", window: bool = False) -> dict:
-    g = make_game(window=window)
+         name: str = "brain", window: bool = False, iwad: str | None = None,
+         targets: str = "all") -> dict:
+    g = make_game(window=window, iwad=iwad)
     warmup(brain, g)
     tracer = Tracer(trace, name)
     results = []
@@ -573,7 +635,7 @@ def play(brain, episodes: int, tics: int, quiet: bool, seed: int | None,
         for ep in range(episodes):
             ep_seed = None if seed is None else seed + ep
             fn = run_episode_live if live else run_episode
-            r = fn(g, brain, ep + 1, ep_seed, tics, rich, tracer)
+            r = fn(g, brain, ep + 1, ep_seed, tics, rich, tracer, targets=targets)
             results.append(r)
             if not quiet:
                 lat = f", {statistics.mean(r.decision_ms):.0f} ms/decision" if r.decision_ms else ""
@@ -594,6 +656,12 @@ def build_brain(a, model=None):
     if a.brain == "jev":
         return JevBrain(a.jev_model, a.conf_floor, a.criteria)
     order = a.order.split(",") if a.order else None
+    if a.brain == "cribl2":
+        if a.ask_danger:
+            raise SystemExit("--ask-danger is only implemented for --brain cribl")
+        return Cribl2Brain(model=model, size=a.size, criteria=a.criteria, option_order=order,
+                           conf_floor=a.conf_floor, on_error=a.on_error, backend=a.backend,
+                           device=a.device)
     return CriblDecisionBrain(model=model, criteria=a.criteria, fmt=a.format,
                               option_order=order, conf_floor=a.conf_floor,
                               on_error=a.on_error, ask_danger=a.ask_danger,
@@ -605,7 +673,13 @@ def state_mode(a):
 
 
 def add_args(ap: argparse.ArgumentParser):
-    ap.add_argument("--brain", choices=["heuristic", "random", "jev", "cribl"], default="heuristic")
+    ap.add_argument("--brain", choices=["heuristic", "random", "jev", "cribl", "cribl2"], default="heuristic",
+                    help="cribl: Cribl Decision 1.0. cribl2: Cribl Decision 2 (see --size)")
+    ap.add_argument("--size", choices=["4b", "mini"], default="4b",
+                    help="cribl2 model size: 4b, or mini (0.8B)")
+    ap.add_argument("--iwad", default=None,
+                    help="game data for the graphics, e.g. ~/Games/doom2.wad (default: $DOOM_IWAD, "
+                         "else ViZDoom's bundled Freedoom). Scores do not depend on it.")
     ap.add_argument("--jev-model", default="jev-latest")
     ap.add_argument("--conf-floor", type=float, default=0.0,
                     help="below this confidence, substitute the heuristic (counted as a fallback)")
@@ -614,7 +688,7 @@ def add_args(ap: argparse.ArgumentParser):
                          "what each button is for. minimal: names only. goal: goal-oriented "
                          "instructions with plain button descriptions.")
     ap.add_argument("--backend", choices=["auto", "mlx", "torch"], default="auto",
-                    help="cribl inference backend: mlx (Apple Silicon) or torch (CUDA/MPS/CPU)")
+                    help="cribl/cribl2 inference backend: mlx (Apple Silicon) or torch (CUDA/MPS/CPU)")
     ap.add_argument("--format", default="plain_letter_qfirst", help="cribl prompt format (cribl_decision.FORMATS)")
     ap.add_argument("--order", default="", help="cribl option order, e.g. TURN_RIGHT,ATTACK,TURN_LEFT")
     ap.add_argument("--on-error", choices=["raise", "heuristic", "noop"], default="raise")
@@ -627,6 +701,9 @@ def add_args(ap: argparse.ArgumentParser):
                          "view, last actions. compact: nearest monster first-class, no list")
     ap.add_argument("--live", action="store_true",
                     help="real-time: the game runs at 35 tics/s while the model thinks")
+    ap.add_argument("--targets", choices=list(TARGETS), default="all",
+                    help="which enemies the state lists. all: demons and chainsaw marines (correct). "
+                         "demons: the original benchmark, which left the marines out")
     ap.add_argument("--episodes", type=int, default=3)
     ap.add_argument("--tics", type=int, default=4, help="game tics per decision")
     ap.add_argument("--seed", type=int, default=1234,
@@ -644,7 +721,11 @@ def main() -> int:
 
     brain = build_brain(a)
     seed = None if a.seed < 0 else a.seed
-    tag = f" · criteria={a.criteria}" if a.brain in ("jev", "cribl") else ""
+    tag = f" · criteria={a.criteria}" if a.brain in ("jev", "cribl", "cribl2") else ""
+    if a.brain == "cribl2":
+        m = brain.model
+        tag += (f" · size={a.size} · {m.device}/{m.dtype_name} · loaded in {m.load_seconds:.1f}s"
+                f" · {m.adapter_report['repo']}@{m.revision[:8]}")
     if a.brain == "cribl":
         m = brain.model
         tag += (f" · format={a.format} · {m.device}/{getattr(m, 'dtype_name', a.dtype)}"
@@ -652,10 +733,11 @@ def main() -> int:
                 + (f" · LoRA merged into {m.adapter_report['modules_merged']} modules"
                    if "modules_merged" in m.adapter_report else
                    f" · adapter tensors verified {m.adapter_report['tensors']}"))
+    tag += f" · art={resolve_iwad(a.iwad) or 'freedoom'} · targets={a.targets}"
     print(f"defend_the_center · brain={a.brain}{tag} · {a.episodes} episodes · seed {seed}"
           f" · {a.tics} tics/decision{' · LIVE' if a.live else ''}")
     s = play(brain, a.episodes, a.tics, a.quiet, seed, state_mode(a), a.trace or None,
-             a.live, a.brain, a.window)
+             a.live, a.brain, a.window, a.iwad, a.targets)
     print(f"\n  {s['decisions']} decisions, {s['fallbacks']} fallbacks")
     if s["decision_ms_mean"] is not None and a.brain != "heuristic":
         print(f"  decision latency mean {s['decision_ms_mean']:.1f} ms, p50 {s['decision_ms_p50']:.1f}, "

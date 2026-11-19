@@ -103,6 +103,100 @@ def confidence_section(name="cribl"):
     return "\n".join(out)
 
 
+def stale_lines(rows):
+    out = []
+    for name, label in rows:
+        st = [int(r["stale_tics"]) for r in trace(name) if r["stale_tics"]]
+        if st:
+            out.append(f"- {label}: the acted-on state was on average **{statistics.mean(st):.1f} tics** old "
+                       f"(p95 {sorted(st)[int(.95 * (len(st) - 1))]}).")
+    return out
+
+
+def fixed_section():
+    """The corrected benchmark: the state lists the chainsaw marines too."""
+    if not load("heuristic_all"):
+        return []
+    return ["# Corrected benchmark (chainsaw marines in the state)", "",
+            "defend_the_center spawns three chainsaw marines and two demons as targets. Both attack the "
+            "player and both count as kills. The original state (from the Jev project) listed only the "
+            "demons, so every brain was blind to three of the five enemies. These rows list both "
+            "(`--targets all`, `results/benchmarks/*_all.json`). Same seeds as every other table.", "",
+            "## Lock-step (the game waits for every decision)", "",
+            table([("random_all", "random"), ("heuristic_all", "hand-coded heuristic"),
+                   ("cribl_all", "Cribl Decision 1.0, jev state"),
+                   ("cribl_state_compact_all", "Cribl Decision 1.0, compact state"),
+                   ("cribl2_all", "Cribl Decision 2 (4B), jev state"),
+                   ("cribl2_state_compact_all", "**Cribl Decision 2 (4B), compact state**"),
+                   ("cribl2mini_all", "Cribl Decision 2 Mini, jev state"),
+                   ("cribl2mini_state_compact_all", "Cribl Decision 2 Mini, compact state")]), "",
+            "## Real time (the game runs at 35 tics a second while the model thinks)", "",
+            "The models use the compact state and hold each action for 8 tics. The heuristic answers "
+            "in well under a millisecond, so it is never late.", "",
+            table([("heuristic_live_all", "hand-coded heuristic, live"),
+                   ("cribl_compact_live_tics8_all", "Cribl Decision 1.0, live, 8 tics"),
+                   ("cribl2_compact_live_tics8_all", "Cribl Decision 2 (4B), live, 8 tics")]), ""] + \
+        stale_lines((("cribl_compact_live_tics8_all", "Decision 1.0"),
+                     ("cribl2_compact_live_tics8_all", "Decision 2 (4B)"))) + \
+        sum([["", f"### Confidence and aim, {lbl}, compact state, marines included", "", confidence_section(n)]
+             for n, lbl in (("cribl_state_compact_all", "Decision 1.0"),
+                            ("cribl2_state_compact_all", "Decision 2 (4B)")) if trace(n)], []) + [""]
+
+
+def decision2_section():
+    """Cribl Decision 2 (4B and Mini) next to the matching 1.0 rows."""
+    if not (load("cribl2") or load("cribl2mini")):
+        return []
+    md = ["", "## Cribl Decision 2 (original benchmark)", ""]
+    for name in ("cribl2", "cribl2mini"):
+        b = load(name)
+        if b and "config" in b:
+            cfg = b["config"]
+            md.append(f"- `{name}`: `{cfg.get('model_repo')}` at revision `{str(cfg.get('model_revision'))[:12]}`, "
+                      f"backend `{cfg.get('model_device')}`, dtype `{cfg.get('model_dtype')}`.")
+    md += ["", "Same seeds, same question, same button wording and order, same states as the 1.0 rows. "
+           "Decision 2 brings its own prompt layout and option scorer (Cribl's `decision.py`), so there is no "
+           "prompt format to choose. The MLX backend is a port of that file, checked against it in "
+           "`tests/test_decision2.py`.", "",
+           "### Original Jev state (6 monsters, nearest first), lock-step", "",
+           table([("random", "random"), ("heuristic", "hand-coded heuristic"),
+                  ("cribl", "Cribl Decision 1.0"), ("cribl2", "**Cribl Decision 2 (4B)**"),
+                  ("cribl2mini", "Cribl Decision 2 Mini (0.8B)")]), "",
+           "### Compact state (nearest monster as its own field), lock-step", "",
+           table([("heuristic_state_compact", "hand-coded heuristic"),
+                  ("cribl_state_compact", "Cribl Decision 1.0"),
+                  ("cribl2_state_compact", "**Cribl Decision 2 (4B)**"),
+                  ("cribl2mini_state_compact", "Cribl Decision 2 Mini (0.8B)"),
+                  ("cribl_compact_tics8", "Cribl Decision 1.0, 8 tics"),
+                  ("cribl2_compact_tics8", "Cribl Decision 2 (4B), 8 tics"),
+                  ("cribl2mini_compact_tics8", "Cribl Decision 2 Mini, 8 tics")]), "",
+           "### Button wording", "",
+           table([("cribl", "1.0, rule (jev state)"), ("cribl_intent", "1.0, intent (jev state)"),
+                  ("cribl_minimal", "1.0, minimal (jev state)"),
+                  ("cribl2", "2 (4B), rule (jev state)"), ("cribl2_intent", "2 (4B), intent (jev state)"),
+                  ("cribl2_minimal", "2 (4B), minimal (jev state)"),
+                  ("cribl2_compact_intent", "2 (4B), intent (compact state)"),
+                  ("cribl2mini", "2 Mini, rule (jev state)"), ("cribl2mini_intent", "2 Mini, intent (jev state)"),
+                  ("cribl2mini_minimal", "2 Mini, minimal (jev state)"),
+                  ("cribl2mini_compact_intent", "2 Mini, intent (compact state)")]), "",
+           "### Real time (compact state)", "",
+           table([("heuristic_live", "heuristic, live"),
+                  ("cribl_compact_live", "1.0, live, 4 tics"), ("cribl_compact_live_tics8", "1.0, live, 8 tics"),
+                  ("cribl2_compact_live", "2 (4B), live, 4 tics"),
+                  ("cribl2_compact_live_tics8", "2 (4B), live, 8 tics"),
+                  ("cribl2mini_compact_live", "2 Mini, live, 4 tics"),
+                  ("cribl2mini_compact_live_tics8", "2 Mini, live, 8 tics")]), ""]
+    for name, label in (("cribl2_compact_live", "2 (4B), 4 tics"), ("cribl2mini_compact_live", "2 Mini, 4 tics")):
+        st = [int(r["stale_tics"]) for r in trace(name) if r["stale_tics"]]
+        if st:
+            md.append(f"- {label}: the acted-on state was on average **{statistics.mean(st):.1f} tics** old "
+                      f"(p95 {sorted(st)[int(.95 * (len(st) - 1))]}).")
+    for name, label in (("cribl2_state_compact", "Decision 2 (4B)"), ("cribl2mini_state_compact", "Decision 2 Mini")):
+        if trace(name):
+            md += ["", f"### Confidence and aim, {label}, compact state", "", confidence_section(name)]
+    return md
+
+
 def env():
     import importlib.metadata as md
     def v(p):
@@ -118,7 +212,7 @@ def env():
 
 
 def main() -> int:
-    md = ["# Cribl Decision 1.0 plays Doom: benchmark report", "",
+    md = ["# Cribl Decision plays Doom: benchmark report", "",
           "_Generated by `report.py` from `results/benchmarks/*.json` and `results/traces/*.csv`._", "",
           f"**Hardware / software:** {env()}", ""]
     c = load("cribl")
@@ -127,10 +221,14 @@ def main() -> int:
         md += [f"**Cribl configuration:** backend `{cfg.get('model_device')}`, "
                f"dtype `{cfg.get('model_dtype')}`, format `{cfg['format']}`, criteria `{cfg['criteria']}`, "
                f"{cfg['tics']} tics per decision, seeds {cfg['seed']}…{cfg['seed'] + c['summary']['episodes'] - 1}.", ""]
+    md += fixed_section()
     md += ["Kills come from the engine's KILLCOUNT. Reward is the scenario's score: +1 per kill and "
            "−1 for dying, which is the number the original project's table calls kills. Hit rate is "
            "HITCOUNT over shots fired. Latency is wall-clock time per decision, including prompt building. "
            "Game speed is seconds of game time per second of wall clock (1.0 = real time).", "",
+           "# Original benchmark (chainsaw marines left out of the state)", "",
+           "Every table from here to the end used the original state, which listed only the demons. "
+           "Episode results are unchanged from the 1.0 write-up and reproduce exactly with `--targets demons`.", "",
            "## Baseline (lock-step: the game waits for every decision)", "",
            table([("random", "random"), ("heuristic", "hand-coded heuristic"),
                   ("jev", "Jev (TypeSafe API)"), ("cribl", "**Cribl Decision 1.0**")]), "",
@@ -219,6 +317,7 @@ def main() -> int:
                 continue
             md.append(f"| {k} | {f(on['acc'])} | {f(off['acc'])} | {f(on['p_true'])} | {f(off['p_true'])} | "
                       f"{f(on['mass'])} | {f(off['mass'])} | {f(on['doom_acc'])} |")
+    md += decision2_section()
     os.makedirs(R, exist_ok=True)
     open(os.path.join(R, "REPORT.md"), "w").write("\n".join(md) + "\n")
     print("wrote results/REPORT.md")

@@ -168,12 +168,19 @@ def test_describe_bearing_sign():
     st = types.SimpleNamespace(game_variables=[100, 26, 0, 0, 0, 0, 0, 0, 26],
                                objects=[obj("DoomPlayer", 0, 0), obj("Demon", 0, 100),
                                         obj("MarineChainsawVzd", 50, 0)])
-    d = da.describe(st)
+    # original benchmark: the marine is left out
+    d = da.describe(st, targets="demons")
     assert [m["kind"] for m in d["monsters_nearest_first"]] == ["Demon"]
     assert d["monsters_nearest_first"][0]["bearing_deg"] == 90
     assert da.heuristic(d) == "TURN_LEFT"
-    r = da.describe(st, ["ATTACK"], rich=True)
+    r = da.describe(st, ["ATTACK"], rich=True, targets="demons")
     assert r["monsters_in_view"] == 0 and r["previous_actions"] == ["ATTACK"]
+    # default: the marine (dead ahead, nearer) is a target like the demon
+    d = da.describe(st)
+    assert [(m["kind"], m["bearing_deg"]) for m in d["monsters_nearest_first"]] == [("Marine", 0), ("Demon", 90)]
+    assert da.heuristic(d) == "ATTACK"
+    c = da.describe(st, rich="compact")
+    assert c["nearest_monster"] == {"distance": 50, "bearing_deg": 0} and c["monsters_total"] == 2
 
 
 def test_episode_loop_uses_brain_decisions():

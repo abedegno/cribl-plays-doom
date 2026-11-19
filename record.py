@@ -2,6 +2,7 @@
 
     python record.py --brain cribl --out docs/cribl-doom.mp4 --seconds 60
     python record.py --brain cribl --live --out docs/cribl-doom-live.mp4
+    python record.py --brain cribl2 --state compact --iwad ~/Games/doom2.wad --out docs/cribl2-doom.mp4
 
 Frames are captured every tic (35 per second), so playback runs at game
 speed. The overlay shows the decision actually being executed: the chosen
@@ -89,11 +90,13 @@ def main() -> int:
     import imageio
     os.makedirs(os.path.dirname(a.out) or ".", exist_ok=True)
     brain = da.build_brain(a)
-    label = {"cribl": "CRIBL DECISION 1.0 (local, " +
-                      getattr(getattr(brain, "model", None), "device", "") + ")",
+    dev = getattr(getattr(brain, "model", None), "device", "")
+    label = {"cribl": f"CRIBL DECISION 1.0 (local, {dev})",
+             "cribl2": ("CRIBL DECISION 2 MINI 0.8B" if a.size == "mini" else "CRIBL DECISION 2 4B")
+                       + f" (local, {dev})",
              "jev": "JEV (TypeSafe API)", "heuristic": "HAND-CODED HEURISTIC",
              "random": "RANDOM"}[a.brain] + (" · LIVE" if a.live else " · lock-step")
-    g = da.make_game(render=True)
+    g = da.make_game(render=True, iwad=a.iwad)
     da.warmup(brain, g)
     tracer = da.Tracer(a.trace or None, a.brain)
     want = int(a.seconds * da.TICS_PER_SEC)
@@ -124,7 +127,8 @@ def main() -> int:
             ep += 1
             seed = None if a.seed < 0 else a.seed + ep - 1
             fn = da.run_episode_live if a.live else da.run_episode
-            r = fn(g, brain, ep, seed, a.tics, da.state_mode(a), tracer, on_tic=on_tic)
+            r = fn(g, brain, ep, seed, a.tics, da.state_mode(a), tracer, on_tic=on_tic,
+                   targets=a.targets)
             episodes.append(r)
             print(f"  episode {ep}: {r.kills} kills, {r.decisions} decisions, "
                   f"{r.fallbacks} fallbacks", flush=True)

@@ -19,10 +19,14 @@ def main() -> int:
     ap.add_argument("--episodes", type=int, default=3)
     ap.add_argument("--seed", type=int, default=1234,
                     help="same default as the bots, so scores are comparable")
+    ap.add_argument("--iwad", default=None, help="game art, e.g. ~/Games/doom2.wad (default $DOOM_IWAD, else Freedoom)")
     a = ap.parse_args()
 
     g = vzd.DoomGame()
     g.load_config(os.path.join(vzd.scenarios_path, "defend_the_center.cfg"))
+    from doom_agent import resolve_iwad
+    if resolve_iwad(a.iwad):
+        g.set_doom_game_path(resolve_iwad(a.iwad))
     g.set_window_visible(True)
     g.set_screen_resolution(vzd.ScreenResolution.RES_800X600)
     # SPECTATOR hands input to you; the script just watches and keeps score.

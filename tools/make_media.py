@@ -8,26 +8,28 @@ Writes:
   docs/share-clip.mp4        1080x1080, 24 s gameplay clip with a caption band
   docs/share-clip.gif        480x480, 6 s loop of the same clip
 
-Every number is read from results/benchmarks/*.json; the gameplay is
-docs/cribl-doom.mp4, recorded by record.py from real model decisions.
+Every number is read from results/benchmarks/*.json (the corrected
+benchmark, with the chainsaw marines in the state); the gameplay is
+docs/cribl2-doom.mp4, recorded by record.py from real model decisions with
+the original Doom II art.
 """
 from __future__ import annotations
 
-import json, os
+import json, math, os
 
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DOCS = os.path.join(ROOT, "docs")
-SRC_VIDEO = os.path.join(DOCS, "cribl-doom.mp4")
-STILL_FRAME = 958          # ATTACK at p 0.97, muzzle flash on a demon
+SRC_VIDEO = os.path.join(DOCS, "cribl2-doom.mp4")
+STILL_FRAME = int(os.environ.get("STILL_FRAME", 700))   # pick a frame with a muzzle flash
 CLIP_START_S, CLIP_LEN_S = 0, 24
 GIF_START_S, GIF_LEN_S = 8, 6       # within the clip
 
 # Palette: the validated categorical slots 1 and 2 (light surface), and the
 # dark card colours.
-CRIBL, BASE = (42, 120, 214), (235, 104, 52)
+CRIBL, BASE, CRIBL2 = (42, 120, 214), (235, 104, 52), (124, 58, 237)
 INK, INK2, INK3, RULE, PANEL = (21, 23, 26), (74, 79, 87), (115, 121, 131), (221, 224, 229), (255, 255, 255)
 DARK_BG, DARK_INK, DARK_INK2, DARK_ACCENT = (18, 20, 22), (236, 238, 240), (170, 176, 185), (127, 176, 236)
 
@@ -53,40 +55,43 @@ def summary(name):
     return json.load(open(os.path.join(ROOT, "results", "benchmarks", f"{name}.json")))["summary"]
 
 
-ROWS = [  # (benchmark, label, mode, is_cribl)
-    ("heuristic", "Hand-coded aiming rule", "lock-step", False),
-    ("cribl_state_compact", "Cribl, nearest monster as its own field", "lock-step", True),
-    ("cribl_compact_tics8", "Cribl, nearest monster, 8 tics per decision", "lock-step", True),
-    ("cribl_state_rich", "Cribl, original state plus extras", "lock-step", True),
-    ("cribl_compact_live_tics8", "Cribl, nearest monster, 8 tics per decision", "live", True),
-    ("cribl", "Cribl, original Jev state", "lock-step", True),
-    ("random", "Random buttons", "lock-step", False),
-    ("cribl_compact_live", "Cribl, nearest monster, 4 tics per decision", "live", True),
+ROWS = [  # (benchmark, label, mode, colour)
+    ("heuristic_all", "Hand-coded aiming rule", "lock-step", BASE),
+    ("cribl2_state_compact_all", "Decision 2, nearest enemy as its own field", "lock-step", CRIBL2),
+    ("cribl2_all", "Decision 2, original Jev state", "lock-step", CRIBL2),
+    ("cribl_state_compact_all", "Decision 1.0, nearest enemy as its own field", "lock-step", CRIBL),
+    ("cribl_all", "Decision 1.0, original Jev state", "lock-step", CRIBL),
+    ("cribl2mini_state_compact_all", "Decision 2 Mini, nearest enemy as its own field", "lock-step", CRIBL2),
+    ("heuristic_live_all", "Hand-coded aiming rule", "live", BASE),
+    ("cribl_compact_live_tics8_all", "Decision 1.0, 8 tics per decision", "live", CRIBL),
+    ("cribl2_compact_live_tics8_all", "Decision 2, 8 tics per decision", "live", CRIBL2),
+    ("random_all", "Random buttons", "lock-step", BASE),
 ]
 
 
 def kills_chart(path: str, scale: int = 2):
     s = scale
-    W, row_h, top, left = 800 * s, 46 * s, 92 * s, 330 * s
+    W, row_h, top, left = 860 * s, 46 * s, 92 * s, 360 * s
     H = top + row_h * len(ROWS) + 64 * s
     img = Image.new("RGB", (W, H), PANEL)
     d = ImageDraw.Draw(img)
     d.rounded_rectangle([1, 1, W - 2, H - 2], radius=10 * s, outline=RULE, width=s)
     d.text((24 * s, 20 * s), "Average kills per episode", fill=INK, font=font("sans_bold", 22 * s))
-    d.text((24 * s, 52 * s), "defend_the_center, 20 episodes per row, same seeds for every row",
+    d.text((24 * s, 52 * s), "defend_the_center, marines and demons in the state, 20 episodes per row, same seeds",
            fill=INK3, font=font("sans", 14 * s))
-    lx = W - 300 * s                                            # legend
-    for i, (c, t) in enumerate([(CRIBL, "Cribl Decision 1.0"), (BASE, "Baseline")]):
-        x = lx + i * 150 * s
+    lx = W - 400 * s                                            # legend
+    for i, (c, t) in enumerate([(CRIBL2, "Decision 2"), (CRIBL, "Decision 1.0"), (BASE, "Baseline")]):
+        x = lx + i * 130 * s
         d.rounded_rectangle([x, 26 * s, x + 12 * s, 38 * s], radius=3 * s, fill=c)
         d.text((x + 18 * s, 23 * s), t, fill=INK2, font=font("sans", 14 * s))
-    plot_w, vmax = W - left - 90 * s, 10.0
+    plot_w = W - left - 90 * s
+    vmax = 2 * math.ceil(max(summary(n)["kills_mean"] + summary(n)["kills_sd"] for n, *_ in ROWS) / 2)
     X = lambda v: left + plot_w * max(0.0, min(v, vmax)) / vmax   # noqa: E731
-    for t in range(0, 11, 2):                                   # recessive grid
+    for t in range(0, int(vmax) + 1, 2):                        # recessive grid
         x = X(t)
         d.line([x, top - 6 * s, x, top + row_h * len(ROWS)], fill=(238, 240, 243), width=s)
         d.text((x, top + row_h * len(ROWS) + 8 * s), str(t), fill=INK3, font=font("mono", 12 * s), anchor="ma")
-    for i, (name, label, mode, cribl) in enumerate(ROWS):
+    for i, (name, label, mode, colour) in enumerate(ROWS):
         sm = summary(name)
         k, sd = sm["kills_mean"], sm["kills_sd"]
         y = top + i * row_h
@@ -94,8 +99,8 @@ def kills_chart(path: str, scale: int = 2):
         d.text((24 * s, y + 22 * s), mode, fill=INK3, font=font("sans", 12 * s))
         by = y + 10 * s
         d.rounded_rectangle([X(0), by, max(X(k), X(0) + 4 * s), by + 18 * s], radius=4 * s,
-                            fill=CRIBL if cribl else BASE)
-        d.rectangle([X(0), by, X(0) + 4 * s, by + 18 * s], fill=CRIBL if cribl else BASE)  # square baseline end
+                            fill=colour)
+        d.rectangle([X(0), by, X(0) + 4 * s, by + 18 * s], fill=colour)  # square baseline end
         d.line([X(k - sd), by + 9 * s, X(k + sd), by + 9 * s], fill=INK3, width=2 * s)
         d.text((X(k + sd) + 8 * s, by + 1 * s), f"{k:.2f}", fill=INK, font=font("mono", 13 * s))
     d.line([X(0), top - 6 * s, X(0), top + row_h * len(ROWS)], fill=INK3, width=s)
@@ -123,13 +128,13 @@ def share_card(path: str):
     img.paste(still, (40, 98), mask)
     x = 720
     d.text((40, 36), "VIZDOOM  DEFEND_THE_CENTER  ZERO-SHOT", fill=DARK_INK2, font=font("mono", 15))
-    d.text((x, 92), "Cribl Decision 1.0", fill=DARK_INK, font=font("sans_bold", 40))
+    d.text((x, 92), "Cribl Decision 2", fill=DARK_INK, font=font("sans_bold", 40))
     d.text((x, 140), "plays Doom", fill=DARK_INK, font=font("sans_bold", 40))
     d.text((x, 200), "A 4B open decision model on a Mac mini reads\nthe game state as JSON and picks a button.",
            fill=DARK_INK2, font=font("sans", 19), spacing=6)
-    c, h = summary("cribl_state_compact"), summary("heuristic")
+    c, h = summary("cribl2_state_compact_all"), summary("heuristic_all")
     for i, (val, line1, col) in enumerate([
-            (f"{c['kills_mean']:.2f}", "kills per episode\nCribl Decision 1.0", DARK_ACCENT),
+            (f"{c['kills_mean']:.2f}", "kills per episode\nCribl Decision 2", DARK_ACCENT),
             (f"{h['kills_mean']:.2f}", "kills per episode\nhand-coded aiming rule", (240, 140, 100))]):
         y = 290 + i * 112
         d.text((x, y), val, fill=col, font=font("num", 84))
@@ -142,15 +147,15 @@ def share_card(path: str):
 
 
 def _band(width: int, height: int) -> Image.Image:
-    c, h = summary("cribl_state_compact"), summary("heuristic")
+    c, h = summary("cribl2_state_compact_all"), summary("heuristic_all")
     band = Image.new("RGB", (width, height), DARK_BG)
     d = ImageDraw.Draw(band)
     sc = width / 1080
-    d.text((40 * sc, 34 * sc), "Cribl Decision 1.0 plays Doom", fill=DARK_INK, font=font("sans_bold", int(52 * sc)))
+    d.text((40 * sc, 34 * sc), "Cribl Decision 2 plays Doom", fill=DARK_INK, font=font("sans_bold", int(52 * sc)))
     d.text((40 * sc, 104 * sc), "Local 4B decision model. JSON game state in, one button out.",
            fill=DARK_INK2, font=font("sans", int(28 * sc)))
     d.text((40 * sc, 158 * sc), f"{c['kills_mean']:.2f}", fill=DARK_ACCENT, font=font("num", int(70 * sc)))
-    d.text((190 * sc, 176 * sc), "Cribl Decision 1.0", fill=DARK_INK2, font=font("sans", int(26 * sc)))
+    d.text((190 * sc, 176 * sc), "Cribl Decision 2", fill=DARK_INK2, font=font("sans", int(26 * sc)))
     d.text((520 * sc, 158 * sc), f"{h['kills_mean']:.2f}", fill=(240, 140, 100), font=font("num", int(70 * sc)))
     d.text((670 * sc, 176 * sc), "hand-coded rule", fill=DARK_INK2, font=font("sans", int(26 * sc)))
     d.text((40 * sc, 232 * sc), "mean kills per episode over the same 20 episodes", fill=DARK_INK2,

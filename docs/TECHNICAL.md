@@ -1,8 +1,10 @@
 # Technical notes
 
-This document covers how the agent works, what about the readout is verified, how to install and run everything, and the limits. The results and findings are in the [README](../README.md), and every table is in [results/REPORT.md](../results/REPORT.md).
+This document covers how the agent works, how each model's answer is read and what about it is verified, how to install and run everything, and the limits. The results and findings are in the [README](../README.md), and every table is in [results/REPORT.md](../results/REPORT.md).
 
 ## How it works
+
+The diagram shows the Decision 1.0 path. Decision 2 (`--brain cribl2`, `cribl_decision2.py`) uses the same state and buttons, and its reader is described in [Cribl Decision 2](#cribl-decision-2) below.
 
 ```
  ViZDoom (headless)         doom_agent.py                cribl_decision.py / cribl_mlx.py
@@ -21,7 +23,7 @@ The model receives JSON such as this (`--state compact`):
 ```json
 {"health": 100, "ammo": 21, "armor": 0,
  "nearest_monster": {"distance": 412, "bearing_deg": 7},
- "monsters_in_view": 1, "monsters_total": 4, "previous_action": "TURN_LEFT",
+ "monsters_in_view": 1, "monsters_total": 5, "previous_action": "TURN_LEFT",
  "note": "bearing 0 = dead ahead. POSITIVE bearing means the monster is to your LEFT (turn left to face it); NEGATIVE means to your RIGHT."}
 ```
 
@@ -29,6 +31,14 @@ The model receives JSON such as this (`--state compact`):
 ammo, facing, and up to six monsters with kind, distance and bearing, nearest
 first. Both are computed from the same ViZDoom object positions the original
 Jev agent used. Neither gives the model anything the Jev agent did not have.
+
+**Targets.** `defend_the_center` spawns three chainsaw marines (`MarineChainsawVzd`)
+and two demons. Both attack and both count as kills. The original project's state
+listed only the demons, so the first version of this benchmark hid three of the five
+enemies from every brain. `--targets all` (the default) lists both, with the marines
+as kind `"Marine"`. `--targets demons` reproduces the original state exactly, and
+`benchmark.py` pins it for every suite except `fixed`, so the original tables stay
+reproducible.
 
 It is asked one typed `choice` question:
 
@@ -58,7 +68,7 @@ Decision(action="ATTACK",
          fallback=None)        # or "low_confidence" / "error:...", never silent
 ```
 
-## The structured readout, and what is verified
+## Decision 1.0: the structured readout, and what is verified
 
 The model card describes the readout as *hidden state at the decision slot →
 native Qwen `lm_head` candidate logits → normalisation over the supplied
@@ -117,6 +127,79 @@ saved against `Qwen3_5ForConditionalGeneration` (`model.language_model.layers.*`
 PEFT only *warns* about the mismatch and then runs the bare base model. This
 repository loads `Qwen3_5ForConditionalGeneration` and checks every tensor.
 
+## Cribl Decision 2
+
+Decision 2 is a full model, not an adapter. Each repository holds a Qwen3.5 text
+backbone, a small scoring head (`decision_head.safetensors`) and Cribl's reference
+reader, `decision.py`. Both sizes are pinned by revision in `cribl_decision2.MODELS`:
+
+| size | repository | revision | download |
+|---|---|---|---|
+| `--size 4b` | `cribl-ai/cribl-decision-2-4B` | `317e53b7…` | 7.9 GB |
+| `--size mini` | `cribl-ai/cribl-decision-2-0.8B` | `fede0fcd…` | 1.4 GB |
+
+The model card names `cribl-ai/cribl-decision-2` as the default repository, but the
+weights are only in the two repositories above.
+
+**How `decision.py` reads an answer.** The prompt uses the chat template and lists
+the options first, then the state, then a readout token (`<|box_end|>`). Each option
+ends with a marker token (`<|fim_middle|>`). The model reads the whole prompt with
+no causal mask. The head projects the hidden state at the readout token to a query
+and the hidden state at each option marker to a key, both of rank 256. Each option's
+logit is the dot product of its key with the query, divided by 256, and a softmax
+over the options gives the probabilities. Nothing is generated.
+
+The Doom agent asks the same question as for 1.0, with the same three options,
+wording and order. It builds the prompt with `decision.py`'s own `prompt()` method,
+so the prompt text and token ids are Cribl's. Confidence uses the same formula as
+for 1.0.
+
+**Backends.**
+
+* `torch` imports `decision.py` unmodified from the pinned snapshot. On Apple
+  Silicon, transformers runs the linear attention layers through its slow PyTorch
+  fallback, so the 4B model takes about 1.2 s per Doom decision on MPS. Batching
+  several questions did not help.
+* `mlx` (the default when `mlx` and `mlx-lm` are installed) runs the backbone on
+  mlx-lm's `qwen3_5` layers, which have Metal kernels. It makes the same three
+  changes to the stock causal model that `decision.py` makes:
+  * the full attention layers get no causal mask;
+  * the linear attention layers listed in `reverse_scan_layers` (2, 6, 10, 14, 18,
+    22, 26 and 30) also read the prompt right to left with the same weights, and
+    the result is added as `mixer(x) + tanh(gate) * flip(mixer(flip(x)))`;
+  * the scoring head replaces the language model head.
+
+  The final scoring runs in float32.
+
+| backend | model | decision latency, compact state (jev state) |
+|---|---|---|
+| `mlx` | 4B | ~395 ms (~470 ms) |
+| `mlx` | Mini | ~70 ms (~90 ms) |
+| `torch`, MPS | 4B | ~1.2 s |
+
+The MLX port can't use the prefix cache that makes 1.0 fast, because every token
+depends on the tokens after it.
+
+**Verified, with tests ([`tests/test_decision2.py`](../tests/test_decision2.py)):**
+
+| claim | how |
+|---|---|
+| The Doom prompt has one readout token, one marker per option, and the layout options, then state, then answer | `test_doom_prompt_has_one_readout_and_one_marker_per_button` |
+| Confidence uses the 1.0 formula | `test_confidence_formula` |
+| Without `--iwad` or `DOOM_IWAD`, the game uses Freedoom | `test_iwad_default_is_freedoom` |
+| MLX agrees with Cribl's `decision.py` on PyTorch | `test_mlx_matches_reference`: max \|Δp\| 0.006 (4B) and 0.020 (Mini) over 10 Doom states; same choice whenever the reference's top two are more than 0.05 apart |
+| MLX is deterministic | `test_mlx_is_deterministic` |
+
+## Original Doom art
+
+ViZDoom ships with Freedoom art. `--iwad PATH` (or `DOOM_IWAD`) loads another IWAD,
+e.g., `DOOM2.WAD` v1.9 from the Steam release of DOOM + DOOM II
+(`base/doom2/DOOM2.WAD`, not the rerelease file). The scenario's own WAD still
+defines the map and scripts, so only the graphics change. The heuristic and random
+brains gave the same result in all 20 benchmark episodes with either IWAD.
+`record.py` and `play.py` take the same flag. WAD files are ignored by git and must
+not be committed.
+
 ## Install
 
 Tested on a Mac mini, Apple M4 Pro (24 GB), macOS 26.7, Python 3.12.
@@ -127,6 +210,7 @@ uv pip install -p .venv/bin/python -e ".[cribl,mlx,record,test]"   # drop mlx of
 .venv/bin/python selfcheck.py
 ```
 
+The first `--brain cribl2` run downloads the chosen Decision 2 model (see above).
 The first `--brain cribl` run downloads the pinned base model (9.3 GB) and the
 adapter (58 MB) from Hugging Face. On Apple Silicon with `mlx` installed, the
 LoRA is merged once into the base in float32, cast back to bfloat16, and cached
@@ -144,6 +228,8 @@ unmerged PEFT reference path: CUDA, then MPS, then CPU.
 
 ```bash
 # play
+.venv/bin/python doom_agent.py --brain cribl2 --size 4b --state compact --episodes 20 --seed 1234
+.venv/bin/python doom_agent.py --brain cribl2 --size mini --episodes 20 --seed 1234
 .venv/bin/python doom_agent.py --brain cribl --episodes 20 --seed 1234
 .venv/bin/python doom_agent.py --brain cribl --state compact --episodes 20 --seed 1234 --trace results/traces/mine.csv
 .venv/bin/python doom_agent.py --brain heuristic --episodes 20 --seed 1234
@@ -153,12 +239,16 @@ unmerged PEFT reference path: CUDA, then MPS, then CPU.
 
 # benchmark every brain and experiment, then the report
 .venv/bin/python benchmark.py --suite all --episodes 20 --seed 1234
+.venv/bin/python benchmark.py --suite fixed      # corrected benchmark only (marines in the state)
+.venv/bin/python benchmark.py --suite decision2  # Decision 2 on the original benchmark
 .venv/bin/python order_probe.py --trace results/traces/cribl.csv --n 150
 .venv/bin/python batch_latency.py --backend mlx; .venv/bin/python batch_latency.py --backend torch
 .venv/bin/python probe_formats.py
 .venv/bin/python report.py                     # → results/REPORT.md
 
 # watch / record
+.venv/bin/python record.py --brain cribl2 --state compact --iwad ~/path/to/DOOM2.WAD --seconds 60 --out docs/cribl2-doom.mp4
+STILL_FRAME=350 .venv/bin/python tools/make_media.py   # chart, share card and clip from the benchmark and recording
 .venv/bin/python record.py --brain cribl --state compact --seconds 60 --out docs/cribl-doom.mp4
 .venv/bin/python record.py --brain cribl --state compact --live --tics 8 --seconds 30 --out docs/cribl-doom-live.mp4
 .venv/bin/python doom_agent.py --brain cribl --state compact --window --episodes 1   # ViZDoom window
@@ -166,15 +256,18 @@ unmerged PEFT reference path: CUDA, then MPS, then CPU.
 
 # tests
 .venv/bin/python -m pytest -q                          # fast, tokenizer only
-CRIBL_MODEL_TESTS=1 .venv/bin/python -m pytest -q      # + loads the model (both backends)
+CRIBL_MODEL_TESTS=1 .venv/bin/python -m pytest -q      # + loads the models (both backends, 1.0 and 2)
 ```
 
 | flag | default | |
 |---|---|---|
-| `--brain` | `heuristic` | `heuristic`, `random`, `jev`, `cribl` |
+| `--brain` | `heuristic` | `heuristic`, `random`, `jev`, `cribl` (Decision 1.0), `cribl2` (Decision 2) |
+| `--size` | `4b` | Decision 2 size, `4b` or `mini` |
+| `--targets` | `all` | `all` (marines and demons) or `demons` (the original benchmark's state) |
+| `--iwad` | Freedoom | path to an IWAD for the art, or `$DOOM_IWAD` |
 | `--state` | `jev` | `jev` (original), `rich` (+ armour, in-view count, last 3 actions), `compact` (nearest monster as its own field) |
 | `--criteria` | `rule` | `rule`, `intent`, `minimal`, `goal` |
-| `--format` | `plain_letter_qfirst` | prompt layout, see `cribl_decision.FORMATS` |
+| `--format` | `plain_letter_qfirst` | Decision 1.0 prompt layout, see `cribl_decision.FORMATS` |
 | `--order` | `ATTACK,TURN_LEFT,TURN_RIGHT` | candidate order shown to the model |
 | `--tics` | `4` | game tics each decision is held for |
 | `--live` | off | game runs at 35 tics/s of wall clock while the model thinks |
@@ -182,7 +275,7 @@ CRIBL_MODEL_TESTS=1 .venv/bin/python -m pytest -q      # + loads the model (both
 | `--device` / `--dtype` | `auto` / `bfloat16` | torch backend only |
 | `--conf-floor` | `0.0` | below it, substitute the heuristic (counted as `low_confidence` fallback) |
 | `--on-error` | `raise` | `raise`, or substitute `heuristic` / `noop` (counted as `error:` fallback) |
-| `--ask-danger` | off | also ask a `noul` "in danger?" question every decision |
+| `--ask-danger` | off | also ask a `noul` "in danger?" question every decision (Decision 1.0 only) |
 | `--seed` | `1234` | episode *i* uses `seed + i`; `-1` randomises |
 | `--trace` / `--json` | none | per-decision CSV / run summary |
 
@@ -217,9 +310,10 @@ MPS), because prefill is compute-bound. MLX asks questions sequentially, at abou
 ## Files
 
 ```
-doom_agent.py      state, brains (random, heuristic, Jev, Cribl), lock-step and live loops, CLI
+doom_agent.py      state, brains (random, heuristic, Jev, Cribl 1.0 and 2), lock-step and live loops, CLI
 cribl_decision.py  typed questions, prompt formats, PyTorch + PEFT model and readout
 cribl_mlx.py       LoRA merge, MLX model, same readout, prefix cache
+cribl_decision2.py Decision 2: Cribl's decision.py (torch) and the MLX port
 benchmark.py       every brain and experiment on identical seeds → results/benchmarks, results/traces
 report.py          results/REPORT.md from those files
 probe_formats.py   which prompt layout the adapter responds to
@@ -228,15 +322,16 @@ batch_latency.py   cost of several questions per decision
 record.py          mp4 with decision overlay (lock-step or live)
 play.py            play the same seeds yourself
 selfcheck.py       install check without loading a model
-tests/             readout, action selection, adapter integrity, backend parity
+tools/make_media.py  kills chart, share card and share clip
+tests/             readout, action selection, adapter integrity, backend parity, Decision 2 prompt and parity
 results/           REPORT.md, benchmark JSON, decision traces (CSV), probe outputs
 docs/              recordings; docs/jev/ holds the original project's README and footage
 ```
 
 ## Limitations
 
-* **The readout format is inferred.** It is not Cribl's published code, because
-  none exists yet. Results may change once the reference implementation is
+* **The Decision 1.0 readout format is inferred.** It is not Cribl's published code, because
+  none exists yet. Decision 2 uses Cribl's own `decision.py`, so this limit does not apply to it. Results may change once the reference implementation is
   released. Swap the layout in `cribl_decision.FORMATS`.
 * **There is one scenario.** `defend_the_center` has three buttons and no movement.
   Nothing here says how the model handles navigation or richer action sets.
@@ -245,12 +340,14 @@ docs/              recordings; docs/jev/ holds the original project's README and
   chosen with the benchmark in mind. Treat the best configuration as a
   favourable one, not a typical one.
 * **Twenty episodes is a small sample.** Per-episode standard deviations are
-  1 to 2 kills, so differences under about 1 kill between configurations are noise.
+  1 to 3 kills, so differences under about 1 kill between configurations are noise.
 * **The MLX path changes rounding.** It runs merged weights
   (bf16(W + BA) rather than bf16(W) + BA), so probabilities differ from the
   PEFT path by up to about 0.02. Decisions agreed on every tested state that was
   not a near tie.
-* **Latency depends on hardware.** All latencies are from one M4 Pro. A CUDA GPU
+* **Latency depends on hardware.** All latencies are from one M4 Pro. A few decisions took
+  seconds while the machine was busy, e.g., one 38 s decision in a Decision 2 run. Lock-step scores
+  do not depend on time, and the medians are stable. A CUDA GPU
   with the fused DeltaNet kernels should be much faster, but was not measured.
 * **The state comes from ViZDoom's object list, like the original project's.**
   That list includes monsters outside the field of view, which the original Jev
@@ -259,6 +356,6 @@ docs/              recordings; docs/jev/ holds the original project's README and
 
 ## License
 
-MIT, as the original project. See [LICENSE](../LICENSE). The Cribl adapter is
-Apache-2.0 and the Qwen base model has its own license; neither is
-redistributed here.
+MIT, as the original project. See [LICENSE](../LICENSE). Cribl Decision 2 and the
+Decision 1.0 adapter are Apache-2.0, and the Qwen base model has its own license.
+None of the models are redistributed here. No Doom game data is included.

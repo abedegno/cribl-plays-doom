@@ -8,3 +8,7 @@ _vizdoom/
 .env
 .DS_Store
 .pytest_cache/
+
+# Doom game data is copyrighted; pass it with --iwad or $DOOM_IWAD, never commit it
+*.wad
+*.WAD

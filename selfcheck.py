@@ -50,6 +50,25 @@ try:
 except Exception as e:  # noqa: BLE001
     note("cribl weights cached", False, str(e))
 
+# Cribl Decision 2 (local)
+try:
+    from huggingface_hub import try_to_load_from_cache
+    from cribl_decision2 import MODELS
+    for size, (repo, rev) in MODELS.items():
+        h = try_to_load_from_cache(repo, "decision_head.safetensors", revision=rev)
+        note(f"cribl2 {size} weights cached", isinstance(h, str),
+             f"{repo}@{rev[:8]}" if isinstance(h, str) else "will download on first --brain cribl2 run")
+except Exception as e:  # noqa: BLE001
+    note("cribl2 weights cached", False, str(e))
+
+# Original Doom art (optional)
+from doom_agent import resolve_iwad  # noqa: E402
+try:
+    iw = resolve_iwad(None)
+    note("original Doom art", iw is not None, iw or "no $DOOM_IWAD set; Freedoom art will be used")
+except FileNotFoundError as e:
+    note("original Doom art", False, str(e))
+
 # Jev (optional)
 try:
     from typesafe_sdk import Choice, Noul, TypeSafeClient  # noqa: F401
@@ -69,7 +88,7 @@ check("fires when aligned", heuristic({"monsters_nearest_first":
       [{"kind": "Demon", "distance": 200, "bearing_deg": 2}]}) == "ATTACK")
 
 s = play(FuncBrain(heuristic, "heuristic"), episodes=2, tics=4, quiet=True, seed=1234)
-check("heuristic plays", s["kills_mean"] > 2, f"{s['kills_mean']:.1f} kills (7.55 over 20 episodes)")
+check("heuristic plays", s["kills_mean"] > 2, f"{s['kills_mean']:.1f} kills (12.60 over 20 episodes)")
 
 print("\n" + ("setup ok" if ok else "SETUP BROKEN, see failures above"))
 sys.exit(0 if ok else 1)
